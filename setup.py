@@ -17,7 +17,7 @@ setup(
     author="Guanjie Shen",
     url="https://github.com/guanjieshen/databricks-uniform-sync",
     packages=find_packages(exclude=["tests*"]),
-    install_requires=requirements
+    install_requires=requirements,
     license="MIT License",
     classifiers=[
         "Development Status :: 3 - Alpha",
