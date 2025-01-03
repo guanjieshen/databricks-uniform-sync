@@ -6,7 +6,7 @@ myenv
 
 # Databricks Notebooks
 mapping_configs/
-
+example*
 # C extensions
 *.so
 
