@@ -1,4 +1,5 @@
 import yaml
+import os
 from data_models.data_models import Schema, Catalog
 
 
@@ -7,6 +8,8 @@ class YamlLogic:
         self.path = "mapping_configs"
 
     def __save_yaml(self, data: dict, filename: str):
+        # Ensure the directory exists
+        os.makedirs(self.path, exist_ok=True)
         with open(f"{self.path}/{filename}.yaml", "w") as file:
             yaml.dump(data, file, sort_keys=False, default_flow_style=False)
 
