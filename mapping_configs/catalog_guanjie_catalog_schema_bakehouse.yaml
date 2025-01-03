@@ -1,0 +1,33 @@
+catalog:
+  uc_id: 56735824-7833-4054-81e8-d1a8026b649a
+  uc_name: guanjie_catalog
+  sf_name: guanjie_catalog
+  schemas:
+  - uc_id: 73dd5d57-ce9e-456d-9f3b-625f3e738e0a
+    uc_name: bakehouse
+    sf_name: bakehouse
+    tables:
+    - uc_id: 82bef45e-79ce-4ba5-a95e-06314f840e1d
+      uc_name: customer
+      sf_name: customer
+      location: abfss://lakehouse@guanjieadlstemp2.dfs.core.windows.net/guanjie_catalog/__unitystorage/catalogs/56735824-7833-4054-81e8-d1a8026b649a/tables/82bef45e-79ce-4ba5-a95e-06314f840e1d
+    - uc_id: dbba00c4-b5ce-4bef-b400-8c8523aca90a
+      uc_name: media_gold_reviews_chunked
+      sf_name: media_gold_reviews_chunked
+      location: abfss://lakehouse@guanjieadlstemp2.dfs.core.windows.net/guanjie_catalog/__unitystorage/catalogs/56735824-7833-4054-81e8-d1a8026b649a/tables/dbba00c4-b5ce-4bef-b400-8c8523aca90a
+    - uc_id: eb968651-088e-44c3-815c-e7fbd2870e7c
+      uc_name: sales_customers
+      sf_name: sales_customers
+      location: abfss://lakehouse@guanjieadlstemp2.dfs.core.windows.net/guanjie_catalog/__unitystorage/catalogs/56735824-7833-4054-81e8-d1a8026b649a/tables/eb968651-088e-44c3-815c-e7fbd2870e7c
+    - uc_id: 18264386-499b-4b25-98f0-f7eb35021683
+      uc_name: sales_franchises
+      sf_name: sales_franchises
+      location: abfss://lakehouse@guanjieadlstemp2.dfs.core.windows.net/guanjie_catalog/__unitystorage/catalogs/56735824-7833-4054-81e8-d1a8026b649a/tables/18264386-499b-4b25-98f0-f7eb35021683
+    - uc_id: 70372e2e-dd49-4ed9-ab64-7944e3544d1b
+      uc_name: sales_suppliers
+      sf_name: sales_suppliers
+      location: abfss://lakehouse@guanjieadlstemp2.dfs.core.windows.net/guanjie_catalog/__unitystorage/catalogs/56735824-7833-4054-81e8-d1a8026b649a/tables/70372e2e-dd49-4ed9-ab64-7944e3544d1b
+    - uc_id: 07d41ad5-6198-45e6-b181-dca2d5c73860
+      uc_name: sales_transactions
+      sf_name: sales_transactions
+      location: abfss://lakehouse@guanjieadlstemp2.dfs.core.windows.net/guanjie_catalog/__unitystorage/catalogs/56735824-7833-4054-81e8-d1a8026b649a/tables/07d41ad5-6198-45e6-b181-dca2d5c73860

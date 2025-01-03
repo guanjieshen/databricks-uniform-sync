@@ -1,0 +1,7 @@
+requests
+pydantic
+pyyaml
+databricks-sdk
+snowflake
+snowflake-connector-python
+snowflake-snowpark-python

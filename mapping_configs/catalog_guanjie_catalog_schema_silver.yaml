@@ -1,0 +1,41 @@
+catalog:
+  uc_id: 56735824-7833-4054-81e8-d1a8026b649a
+  uc_name: guanjie_catalog
+  sf_name: guanjie_catalog
+  schemas:
+  - uc_id: 05bdf562-d713-4ee3-917a-4de5ca202b71
+    uc_name: silver
+    sf_name: silver
+    tables:
+    - uc_id: a37383cd-283e-4d72-85e0-9f2a258dbe1f
+      uc_name: customer
+      sf_name: customer
+      location: abfss://lakehouse@guanjieadlstemp2.dfs.core.windows.net/guanjie_catalog/__unitystorage/catalogs/56735824-7833-4054-81e8-d1a8026b649a/tables/a37383cd-283e-4d72-85e0-9f2a258dbe1f
+    - uc_id: 95e70fce-dfe8-480d-b72e-e7f02f08c76c
+      uc_name: lineitem
+      sf_name: lineitem
+      location: abfss://lakehouse@guanjieadlstemp2.dfs.core.windows.net/guanjie_catalog/__unitystorage/catalogs/56735824-7833-4054-81e8-d1a8026b649a/tables/95e70fce-dfe8-480d-b72e-e7f02f08c76c
+    - uc_id: 766dd930-b5cf-4d90-b9fa-4354a785687d
+      uc_name: nation
+      sf_name: nation
+      location: abfss://lakehouse@guanjieadlstemp2.dfs.core.windows.net/guanjie_catalog/__unitystorage/catalogs/56735824-7833-4054-81e8-d1a8026b649a/tables/766dd930-b5cf-4d90-b9fa-4354a785687d
+    - uc_id: b8c43873-03ca-4c0f-b2cb-7ad40e9c467c
+      uc_name: orders
+      sf_name: orders
+      location: abfss://lakehouse@guanjieadlstemp2.dfs.core.windows.net/guanjie_catalog/__unitystorage/catalogs/56735824-7833-4054-81e8-d1a8026b649a/tables/b8c43873-03ca-4c0f-b2cb-7ad40e9c467c
+    - uc_id: c6ac5f54-5b1c-4d50-8a3e-86e9fb3fb006
+      uc_name: part
+      sf_name: part
+      location: abfss://lakehouse@guanjieadlstemp2.dfs.core.windows.net/guanjie_catalog/__unitystorage/catalogs/56735824-7833-4054-81e8-d1a8026b649a/tables/c6ac5f54-5b1c-4d50-8a3e-86e9fb3fb006
+    - uc_id: d85ab7ff-2239-4641-a876-583277f9f3bd
+      uc_name: partsupp
+      sf_name: partsupp
+      location: abfss://lakehouse@guanjieadlstemp2.dfs.core.windows.net/guanjie_catalog/__unitystorage/catalogs/56735824-7833-4054-81e8-d1a8026b649a/tables/d85ab7ff-2239-4641-a876-583277f9f3bd
+    - uc_id: 3eb23981-45b1-4977-9ae9-c76abdca6579
+      uc_name: region
+      sf_name: region
+      location: abfss://lakehouse@guanjieadlstemp2.dfs.core.windows.net/guanjie_catalog/__unitystorage/catalogs/56735824-7833-4054-81e8-d1a8026b649a/tables/3eb23981-45b1-4977-9ae9-c76abdca6579
+    - uc_id: cfbf8f1f-7fbe-44ed-8bdb-10768a103498
+      uc_name: supplier
+      sf_name: supplier
+      location: abfss://lakehouse@guanjieadlstemp2.dfs.core.windows.net/guanjie_catalog/__unitystorage/catalogs/56735824-7833-4054-81e8-d1a8026b649a/tables/cfbf8f1f-7fbe-44ed-8bdb-10768a103498
