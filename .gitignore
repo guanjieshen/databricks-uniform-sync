@@ -4,6 +4,11 @@ __pycache__/
 *$py.class
 myenv
 
+# Databricks Notebooks
+
+example_export_uc_metadata.py
+mapping_configs/
+
 # C extensions
 *.so
 
