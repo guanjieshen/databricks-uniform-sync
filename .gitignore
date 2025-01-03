@@ -5,8 +5,6 @@ __pycache__/
 myenv
 
 # Databricks Notebooks
-
-example_export_uc_metadata.py
 mapping_configs/
 
 # C extensions
