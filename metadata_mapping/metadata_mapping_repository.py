@@ -9,7 +9,7 @@ class MetadataMappingRepository:
     def create_metadata_table(self, catalog: str, schema: str):
         try:
             sql_text = f"""
-                        CREATE IF NOT EXISTS TABLE `{catalog}`.`{schema}`.dbx_sf_uniform_metadata (
+                        CREATE TABLE IF NOT EXISTS  `{catalog}`.`{schema}`.dbx_sf_uniform_metadata (
                         dbx_sf_uniform_metadata_id BIGINT GENERATED ALWAYS AS IDENTITY (START WITH 0 INCREMENT BY 1),
                         uc_catalog_id STRING,
                         uc_catalog_name STRING,
