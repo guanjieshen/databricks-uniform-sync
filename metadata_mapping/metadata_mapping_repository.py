@@ -1,4 +1,4 @@
-from pyspark.sql import SparkSession
+from pyspark.sql import SparkSession, DataFrame
 from delta.tables import *
 
 
@@ -38,29 +38,27 @@ class MetadataMappingRepository:
         except Exception as e:
             print(f"Error creating metadata table: {e}")
 
-    def upsert_metadata_table(self, df_updates):
+    def upsert_metadata_table(self, df_updates: DataFrame):
         metadata_table = DeltaTable.forName(
             self.spark_session, f"`{self.catalog}`.`{self.schema}`.`{self.table}`"
         )
         (
-            metadata_table.alias("target").merge(
+            metadata_table.alias("target")
+            .merge(
                 df_updates.alias("updates"),
                 "target.dbx_sf_uniform_metadata_id = updates.dbx_sf_uniform_metadata_id",
-            ).whenMatchedUpdate(
+            )
+            .whenMatchedUpdate(
                 set={
-                    "uc_catalog_id": "updates.uc_catalog_id",
                     "uc_catalog_name": "updates.uc_catalog_name",
-                    "uc_schema_id": "updates.uc_schema_id",
                     "uc_schema_name": "updates.uc_schema_name",
-                    "uc_table_id": "updates.uc_table_id",
                     "uc_table_name": "updates.uc_table_name",
                     "table_location": "updates.table_location",
                     "sf_database_name": "updates.sf_database_name",
                     "sf_schema_name": "updates.sf_schema_name",
                     "sf_table_name": "updates.sf_table_name",
-                    "active": "updates.active",
-                    "updated_date": "updates.updated_date",
-                    "updated_by": "updates.updated_by",
                 }
-            ).whenNotMatchedInsertAll().execute()
+            )
+            .whenNotMatchedInsertAll()
+            .execute()
         )

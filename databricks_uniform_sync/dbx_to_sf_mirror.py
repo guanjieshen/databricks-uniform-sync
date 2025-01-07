@@ -4,7 +4,7 @@ from data_models.data_models import Catalog, Schema
 from databricks_unity_catalog.logic_yaml import YamlLogic
 from metadata_mapping.metdata_mapping_logic import MetadataMappingLogic
 from pyspark.sql import SparkSession
-
+from pyspark.sql.functions import xxhash64, lit, current_timestamp
 
 class DatabricksToSnowflakeMirror:
     def __init__(
@@ -42,7 +42,13 @@ class DatabricksToSnowflakeMirror:
         # Ensure the metadata table is created
         self.create_metadata_tables()
 
-        catalog_hierarchy: Catalog = self.uc_mapping_logic.build_hierarchy_for_catalog(
+        # Get the catalog hierarchy
+        catalog: Catalog = self.uc_mapping_logic.build_hierarchy_for_catalog(
             catalog_name=catalog, schemas_include=schema, include_empty_schemas=False
         )
-        return catalog_hierarchy
+
+        # Refresh the metadata table
+        self.metadata_mapping_logic.refresh_metadata_table(catalog=catalog)
+        
+        
+
