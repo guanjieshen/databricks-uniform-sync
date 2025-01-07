@@ -46,3 +46,4 @@ class DatabricksToSnowflakeMirror:
         catalog_hierarchy: Catalog = self.uc_mapping_logic.build_hierarchy_for_catalog(
             catalog_name=catalog, schemas_include=schema, include_empty_schemas=False
         )
+        return catalog_hierarchy
