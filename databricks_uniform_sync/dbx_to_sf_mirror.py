@@ -13,7 +13,7 @@ class DatabricksToSnowflakeMirror:
         # Create an instance of the MappingLogic class and YamlLogic class
         self.metadata_mapping_logic = MetadataMappingLogic()
 
-    def init_metadata_tables(self, catalog_name: str, schema_name: str):
+    def create_metadata_tables(self, catalog_name: str, schema_name: str):
         # Create metadata tables
         self.metadata_mapping_logic.create_metadata_table(
             catalog=catalog_name, schema=schema_name

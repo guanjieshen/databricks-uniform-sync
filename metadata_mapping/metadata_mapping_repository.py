@@ -31,6 +31,6 @@ class MetadataMappingRepository:
 
                         This table is managed by the `DatabricksToSnowflakeMirror` library.'
                     """
-            spark.sql(sql_text)
+            spark.sql(sqlQuery=sql_text)
         except Exception as e:
             print(f"Error creating metadata table: {e}")
