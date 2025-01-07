@@ -1,14 +1,15 @@
 from pyspark.sql import SparkSession as spark
 
+
 class MetadataMappingRepository:
 
     def __init__(self):
         pass
 
-    def create_metadata_table(self,catalog: str, schema: str):
+    def create_metadata_table(self, catalog: str, schema: str):
         try:
             sql_text = f"""
-                        CREATE OR REPLACE TABLE `{catalog}`.`{schema}`.dbx_sf_uniform_metadata (
+                        CREATE IF NOT EXISTS TABLE `{catalog}`.`{schema}`.dbx_sf_uniform_metadata (
                         dbx_sf_uniform_metadata_id BIGINT GENERATED ALWAYS AS IDENTITY (START WITH 0 INCREMENT BY 1),
                         uc_catalog_id STRING,
                         uc_catalog_name STRING,
@@ -33,4 +34,3 @@ class MetadataMappingRepository:
             spark.sql(sql_text)
         except Exception as e:
             print(f"Error creating metadata table: {e}")
-
