@@ -1,10 +1,10 @@
-from pyspark.sql import SparkSession as spark
+from pyspark.sql import SparkSession
 
 
 class MetadataMappingRepository:
 
-    def __init__(self):
-        pass
+    def __init__(self, spark_session: SparkSession):
+        self.spark_session: SparkSession = spark_session
 
     def create_metadata_table(self, catalog: str, schema: str):
         try:
@@ -31,6 +31,6 @@ class MetadataMappingRepository:
 
                         This table is managed by the `DatabricksToSnowflakeMirror` library.'
                     """
-            spark.sql(spark,sqlQuery=sql_text)
+            self.spark_session.sql(sqlQuery=sql_text)
         except Exception as e:
             print(f"Error creating metadata table: {e}")

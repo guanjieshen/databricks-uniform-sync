@@ -1,11 +1,13 @@
-from pyspark.sql import SparkSession as spark
+from pyspark.sql import SparkSession
 from metadata_mapping.metadata_mapping_repository import MetadataMappingRepository
 
 
 class MetadataMappingLogic:
 
-    def __init__(self):
-        self.metadata_mapping_repository = MetadataMappingRepository()
+    def __init__(self, spark_session: SparkSession):
+        self.metadata_mapping_repository = MetadataMappingRepository(
+            spark_session=spark_session
+        )
 
     def create_metadata_table(self, catalog: str, schema: str):
         try:
