@@ -4,13 +4,15 @@ from metadata_mapping.metadata_mapping_repository import MetadataMappingReposito
 
 class MetadataMappingLogic:
 
-    def __init__(self, spark_session: SparkSession):
+    def __init__(
+        self, spark_session: SparkSession, catalog: str, schema: str, table: str
+    ):
         self.metadata_mapping_repository = MetadataMappingRepository(
-            spark_session=spark_session
+            spark_session=spark_session, catalog=catalog, schema=schema, table=table
         )
 
-    def create_metadata_table(self, catalog: str, schema: str, table: str):
+    def create_metadata_table(self):
         try:
-            self.metadata_mapping_repository.create_metadata_table(catalog, schema, table)
+            self.metadata_mapping_repository.create_metadata_table()
         except Exception as e:
             print(f"Error creating metadata table: {e}")

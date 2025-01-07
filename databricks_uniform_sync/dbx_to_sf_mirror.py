@@ -25,7 +25,10 @@ class DatabricksToSnowflakeMirror:
 
         # Create an instance of the MappingLogic class and YamlLogic class
         self.metadata_mapping_logic: MetadataMappingLogic = MetadataMappingLogic(
-            spark_session=self.spark_session
+            spark_session=self.spark_session,
+            catalog=self.metadata_catalog,
+            schema=self.metadata_schema,
+            table=self.metadata_table,
         )
         self.uc_mapping_logic: UCMappingLogic = UCMappingLogic(
             workspace_url=self.dbx_workspace_url, bearer_token=self.dbx_workspace_pat
@@ -33,11 +36,7 @@ class DatabricksToSnowflakeMirror:
 
     def create_metadata_tables(self):
         # Create metadata tables
-        self.metadata_mapping_logic.create_metadata_table(
-            catalog=self.metadata_catalog,
-            schema=self.metadata_schema,
-            table=self.metadata_table,
-        )
+        self.metadata_mapping_logic.create_metadata_table()
 
     def refresh_uc_metadata(self, catalog, schema=None, table=None):
         # Ensure the metadata table is created

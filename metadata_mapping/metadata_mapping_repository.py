@@ -1,16 +1,22 @@
 from pyspark.sql import SparkSession
+from delta.tables import *
 
 
 class MetadataMappingRepository:
 
-    def __init__(self, spark_session: SparkSession):
+    def __init__(
+        self, spark_session: SparkSession, catalog: str, schema: str, table: str
+    ):
         self.spark_session: SparkSession = spark_session
+        self.catalog = catalog
+        self.schema = schema
+        self.table = table
 
-    def create_metadata_table(self, catalog: str, schema: str, table: str):
+    def create_metadata_table(self):
         try:
             sql_text = f"""
-                        CREATE TABLE IF NOT EXISTS  `{catalog}`.`{schema}`.`{table}` (
-                        dbx_sf_uniform_metadata_id BIGINT GENERATED ALWAYS AS IDENTITY (START WITH 0 INCREMENT BY 1),
+                        CREATE TABLE IF NOT EXISTS  `{self.catalog}`.`{self.schema}`.`{self.table}` (
+                        dbx_sf_uniform_metadata_id LONG,
                         uc_catalog_id STRING,
                         uc_catalog_name STRING,
                         uc_schema_id STRING,
@@ -21,11 +27,8 @@ class MetadataMappingRepository:
                         sf_database_name STRING,
                         sf_schema_name STRING,
                         sf_table_name STRING,
-                        active BOOLEAN,
-                        created_date TIMESTAMP,
-                        updated_date TIMESTAMP,
-                        created_by STRING,
-                        updated_by STRING)
+                        active_sync BOOLEAN,
+                        last_sync_dated TIMESTAMP)
                         USING delta
                         COMMENT 'The `dbx_sf_uniform_metadata` table contains metadata information about how tables within Unity Catalog are mirrored within the Snowflake catalog. 
 
@@ -34,3 +37,30 @@ class MetadataMappingRepository:
             self.spark_session.sql(sqlQuery=sql_text)
         except Exception as e:
             print(f"Error creating metadata table: {e}")
+
+    def upsert_metadata_table(self, df_updates):
+        metadata_table = DeltaTable.forName(
+            self.spark_session, f"`{self.catalog}`.`{self.schema}`.`{self.table}`"
+        )
+        (
+            metadata_table.alias("target").merge(
+                df_updates.alias("updates"),
+                "target.dbx_sf_uniform_metadata_id = updates.dbx_sf_uniform_metadata_id",
+            ).whenMatchedUpdate(
+                set={
+                    "uc_catalog_id": "updates.uc_catalog_id",
+                    "uc_catalog_name": "updates.uc_catalog_name",
+                    "uc_schema_id": "updates.uc_schema_id",
+                    "uc_schema_name": "updates.uc_schema_name",
+                    "uc_table_id": "updates.uc_table_id",
+                    "uc_table_name": "updates.uc_table_name",
+                    "table_location": "updates.table_location",
+                    "sf_database_name": "updates.sf_database_name",
+                    "sf_schema_name": "updates.sf_schema_name",
+                    "sf_table_name": "updates.sf_table_name",
+                    "active": "updates.active",
+                    "updated_date": "updates.updated_date",
+                    "updated_by": "updates.updated_by",
+                }
+            ).whenNotMatchedInsertAll().execute()
+        )
