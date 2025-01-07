@@ -12,16 +12,37 @@ class DatabricksToSnowflakeMirror:
         spark_session: SparkSession,
         dbx_workspace_url: str,
         dbx_workspace_pat: str,
+        metadata_catalog: str,
+        metadata_schema: str,
+        metadata_table: str = "dbx_sf_uniform_metadata",
     ):
-        self.dbx_workspace_url = dbx_workspace_url
-        self.dbx_workspace_pat = dbx_workspace_pat
-        self.spark_session = spark_session
+        self.dbx_workspace_url: str = dbx_workspace_url
+        self.dbx_workspace_pat: str = dbx_workspace_pat
+        self.spark_session: SparkSession = spark_session
+        self.metadata_catalog: str = metadata_catalog
+        self.metadata_schema: str = metadata_schema
+        self.metadata_table: str = metadata_table
 
         # Create an instance of the MappingLogic class and YamlLogic class
-        self.metadata_mapping_logic = MetadataMappingLogic(spark_session=self.spark_session)
+        self.metadata_mapping_logic: MetadataMappingLogic = MetadataMappingLogic(
+            spark_session=self.spark_session
+        )
+        self.uc_mapping_logic: UCMappingLogic = UCMappingLogic(
+            workspace_url=self.dbx_workspace_url, bearer_token=self.dbx_workspace_pat
+        )
 
-    def create_metadata_tables(self, catalog_name: str, schema_name: str):
+    def create_metadata_tables(self):
         # Create metadata tables
         self.metadata_mapping_logic.create_metadata_table(
-            catalog=catalog_name, schema=schema_name
+            catalog=self.metadata_catalog,
+            schema=self.metadata_schema,
+            table=self.metadata_table,
+        )
+
+    def refresh_uc_metadata(self, catalog, schema=None, table=None):
+        # Ensure the metadata table is created
+        self.create_metadata_tables()
+
+        catalog_hierarchy: Catalog = self.uc_mapping_logic.build_hierarchy_for_catalog(
+            catalog_name=catalog, schemas_include=schema, include_empty_schemas=False
         )

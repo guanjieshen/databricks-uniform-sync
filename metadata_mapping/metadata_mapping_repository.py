@@ -6,10 +6,10 @@ class MetadataMappingRepository:
     def __init__(self, spark_session: SparkSession):
         self.spark_session: SparkSession = spark_session
 
-    def create_metadata_table(self, catalog: str, schema: str):
+    def create_metadata_table(self, catalog: str, schema: str, table: str):
         try:
             sql_text = f"""
-                        CREATE TABLE IF NOT EXISTS  `{catalog}`.`{schema}`.dbx_sf_uniform_metadata (
+                        CREATE TABLE IF NOT EXISTS  `{catalog}`.`{schema}`.`{table}` (
                         dbx_sf_uniform_metadata_id BIGINT GENERATED ALWAYS AS IDENTITY (START WITH 0 INCREMENT BY 1),
                         uc_catalog_id STRING,
                         uc_catalog_name STRING,
