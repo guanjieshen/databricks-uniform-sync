@@ -20,8 +20,9 @@ class DatabricksToSnowflakeMirror:
         catalog: Catalog = self.mapping_logic.build_hierarchy_for_catalog(
             catalog_name=uc_catalog_name, schemas_include=uc_schema_names
         )
-        self.yaml_logic.generate_yaml_file(
-            catalog=catalog,
-            catalog_name=uc_catalog_name,
-            schema_name=uc_schema_names[0],
-        )
+        print(catalog)
+        # self.yaml_logic.generate_yaml_file(
+        #     catalog=catalog,
+        #     catalog_name=uc_catalog_name,
+        #     schema_name=uc_schema_names[0],
+        # )
