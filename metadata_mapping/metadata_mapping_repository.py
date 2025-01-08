@@ -24,10 +24,8 @@ class MetadataMappingRepository:
                         uc_table_id STRING,
                         uc_table_name STRING,
                         table_location STRING,
-                        sf_database_name STRING,
-                        sf_schema_name STRING,
-                        sf_table_name STRING,
-                        active_sync BOOLEAN,
+                        uc_tags_added: BOOLEAN,
+                        catalog_sync BOOLEAN,
                         last_sync_dated TIMESTAMP)
                         USING delta
                         COMMENT 'The `dbx_sf_uniform_metadata` table contains metadata information about how tables within Unity Catalog are mirrored within the Snowflake catalog. 
