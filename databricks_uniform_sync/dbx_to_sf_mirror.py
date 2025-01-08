@@ -3,7 +3,10 @@ from databricks_unity_catalog.logic_uc_tags import UCTagsLogic
 from data_models.data_models import Catalog
 from metadata_mapping.metadata_mapping_logic import MetadataMappingLogic
 from pyspark.sql import SparkSession, DataFrame
+import logging
 
+# Configure the logging system
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 class DatabricksToSnowflakeMirror:
     def __init__(
@@ -44,6 +47,7 @@ class DatabricksToSnowflakeMirror:
         # Create metadata tables
         self.metadata_mapping_logic.create_metadata_tables()
 
+
     def refresh_uc_metadata(self, catalog, schema=None, table=None):
         # Ensure the metadata table is created
         self.create_metadata_tables()
@@ -55,6 +59,7 @@ class DatabricksToSnowflakeMirror:
 
         # Refresh the metadata table
         self.metadata_mapping_logic.refresh_metadata_table(catalog=catalog)
+        logging.info("Metadata refresh completed.")
 
     def refresh_uc_metadata_tags(self):
         # Get the metadata table
@@ -81,14 +86,24 @@ class DatabricksToSnowflakeMirror:
                 self.uc_tags_logic.add_uc_metadata_tags(
                     table.uc_catalog_name, table.uc_schema_name, table.uc_table_name
                 )
+                print(f"Metadata Tags to Table: {table.uc_catalog_name}.{table.uc_schema_name}.{table.uc_table_name}")
             except Exception as e:
                 print(f"Error adding tags to table: {e}")
 
-    def sf_create_external_volumes():
+    def sf_create_external_volumes(dry_run: bool = False):
         pass
 
-    def sf_create_catalog_integrations():
+    def sf_create_catalog_integrations(
+        self, refresh_interval: int = 120, workspace_url=None, dry_run: bool = False
+    ):
+        workspace_url: str = workspace_url or self.dbx_workspace_url
+        #TODO: This code should be moved into the logic class.
+        # catalog_url: str = f"{workspace_url}/api/2.1/unity-catalog/iceberg"
+
+        # Get the metadata table
+
+        # Create catalog integrations.
         pass
 
-    def sync_catalogs():
+    def sync_catalogs(dry_run: bool = False):
         pass
