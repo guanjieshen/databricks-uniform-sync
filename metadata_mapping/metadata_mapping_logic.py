@@ -23,6 +23,10 @@ class MetadataMappingLogic:
 
     def get_metadata_table(self)->DataFrame:
         return self.metadata_mapping_repository.get_metadata_table()
+    
+    def get_metadata_view(self)->DataFrame:
+        return self.metadata_mapping_repository.get_metadata_view()
+
 
     def refresh_metadata_table(self, catalog: Catalog):
         # Flatten the nested structure

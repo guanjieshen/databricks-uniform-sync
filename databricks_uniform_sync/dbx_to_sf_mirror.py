@@ -56,16 +56,23 @@ class DatabricksToSnowflakeMirror:
         # Refresh the metadata table
         self.metadata_mapping_logic.refresh_metadata_table(catalog=catalog)
 
-    def add_uc_metadata_tags(self):
+    def refresh_uc_metadata_tags(self):
         # Get the metadata table
-        metadata_table: DataFrame = self.metadata_mapping_logic.get_metadata_table()
+        metadata_table: DataFrame = self.metadata_mapping_logic.get_metadata_view()
 
-        # Convert metadata table to a list
-        metadata_table_results = metadata_table.select(
-            metadata_table.uc_catalog_name,
-            metadata_table.uc_schema_name,
-            metadata_table.uc_table_name,
-            metadata_table.dbx_sf_uniform_metadata_id,
+        # Convert metadata table to a list and filter out tables that already have metadata tags
+        metadata_table_results = (
+            metadata_table.filter(
+                (metadata_table.snowflake_database.isNull())
+                & (metadata_table.snowflake_schema.isNull())
+                & (metadata_table.snowflake_table.isNull())
+                & (metadata_table.snowflake_uniform_sync.isNull())
+            ).select(
+                metadata_table.uc_catalog_name,
+                metadata_table.uc_schema_name,
+                metadata_table.uc_table_name,
+                metadata_table.dbx_sf_uniform_metadata_id,
+            )
         ).collect()
 
         # Add tags to the tables
@@ -76,4 +83,3 @@ class DatabricksToSnowflakeMirror:
                 )
             except Exception as e:
                 print(f"Error adding tags to table: {e}")
-

@@ -45,7 +45,7 @@ class MetadataMappingRepository:
                             p.snowflake_database,
                             p.snowflake_schema,
                             p.snowflake_table,
-                            p.snowflake_uniform_syc
+                            p.snowflake_uniform_sync
                             FROM
                             `{self.catalog}`.`{self.schema}`.`{self.table}` a
                             LEFT JOIN (
@@ -56,7 +56,7 @@ class MetadataMappingRepository:
                                 MAX(CASE WHEN tag_name = 'snowflake_database' THEN tag_value END) AS snowflake_database,
                                 MAX(CASE WHEN tag_name = 'snowflake_schema' THEN tag_value END) AS snowflake_schema,
                                 MAX(CASE WHEN tag_name = 'snowflake_table' THEN tag_value END) AS snowflake_table,
-                                MAX(CASE WHEN tag_name = 'snowflake_uniform_syc' THEN tag_value END) AS snowflake_uniform_syc
+                                MAX(CASE WHEN tag_name = 'snowflake_uniform_sync' THEN tag_value END) AS snowflake_uniform_sync
                                 FROM
                                 system.information_schema.table_tags
                                 GROUP BY
@@ -78,6 +78,11 @@ class MetadataMappingRepository:
         return self.spark_session.sql(
             f"SELECT * FROM `{self.catalog}`.`{self.schema}`.`{self.table}`"
         )
+    
+    def get_metadata_view(self) -> DataFrame:
+            return self.spark_session.sql(
+                f"SELECT * FROM `{self.catalog}`.`{self.schema}`.`{self.table}_vw`"
+            )
 
     def upsert_metadata_table(self, df_updates: DataFrame):
         metadata_table = DeltaTable.forName(
