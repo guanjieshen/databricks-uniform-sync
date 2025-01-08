@@ -12,13 +12,14 @@ from data_models.data_models import (
 )
 from typing import List
 from databricks.sdk.service.catalog import CatalogInfo, SchemaInfo, TableInfo
+from pyspark.sql import SparkSession
 
 # Systems Schemas to exclude
 excluded_schemas = ["information_schema"]
 
 
 class UCMappingLogic:
-    def __init__(self, workspace_url, bearer_token):
+    def __init__(self, spark_session: SparkSession, workspace_url, bearer_token):
         self.workspace_url = workspace_url
         self.bearer_token = bearer_token
 
@@ -26,11 +27,14 @@ class UCMappingLogic:
             workspace_url, bearer_token
         )
         self.unity_catalog_repo: UnityCatalogRepository = UnityCatalogRepository(
-            workspace_url, bearer_token
+            spark_session, workspace_url, bearer_token
         )
 
     def build_hierarchy_for_catalog(
-        self, catalog_name: str, schemas_include:List[str] = None, include_empty_schemas=True
+        self,
+        catalog_name: str,
+        schemas_include: List[str] = None,
+        include_empty_schemas=True,
     ) -> Catalog:
         # Get the schemas
         schemas_object: UnityCatalogIcebergSchema = (

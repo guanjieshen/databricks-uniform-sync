@@ -32,7 +32,9 @@ class DatabricksToSnowflakeMirror:
             table=self.metadata_table,
         )
         self.uc_mapping_logic: UCMappingLogic = UCMappingLogic(
-            workspace_url=self.dbx_workspace_url, bearer_token=self.dbx_workspace_pat
+            spark_session=spark_session,
+            workspace_url=self.dbx_workspace_url,
+            bearer_token=self.dbx_workspace_pat,
         )
         self.uc_tags_logic: UCTagsLogic = UCTagsLogic(
             spark_session=spark_session,
@@ -78,5 +80,3 @@ class DatabricksToSnowflakeMirror:
             except Exception as e:
                 print(f"Error adding tags to table: {e}")
                 table.tags_added = False
-
-            
