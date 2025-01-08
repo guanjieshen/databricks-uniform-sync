@@ -47,8 +47,6 @@ class MetadataMappingLogic:
                 "dbx_sf_uniform_metadata_id",
                 xxhash64("uc_catalog_id", "uc_schema_id", "uc_table_id"),
             )
-            .withColumn("catalog_sync", lit(False))
-            .withColumn("uc_tags_added", lit(False))
             .withColumn("last_sync_dated", lit(None))
         )
 

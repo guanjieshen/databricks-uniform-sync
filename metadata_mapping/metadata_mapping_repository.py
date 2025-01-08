@@ -24,13 +24,11 @@ class MetadataMappingRepository:
                         uc_table_id STRING,
                         uc_table_name STRING,
                         table_location STRING,
-                        uc_tags_added BOOLEAN,
-                        catalog_sync BOOLEAN,
                         last_sync_dated TIMESTAMP)
                         USING delta
                         COMMENT 'The `dbx_sf_uniform_metadata` table contains metadata information. 
 
-                        This table is managed by the `DatabricksToSnowflakeMirror` library.'
+                        This table is managed by the `DatabricksToSnowflakeMirror` library.
                     """
             self.spark_session.sql(sqlQuery=sql_text)
         except Exception as e:
@@ -39,10 +37,14 @@ class MetadataMappingRepository:
     def create_metadata_joined_view(self):
         try:
             sql_text = f"""
-                    CREATE VIEW IF NOT EXISTS `{self.catalog}`.`{self.schema}`.`{self.table}_vw` AS(
+                    CREATE VIEW IF NOT EXISTS `{self.catalog}`.`{self.schema}`.`{self.table}_vw` 
+                    COMMENT 'Your descriptive comment here'  COMMENT 'The `dbx_sf_uniform_metadata` table contains metadata information. 
+
+                        This table is managed by the `DatabricksToSnowflakeMirror` library. 
+                    AS(
                     SELECT
                         a.*,
-                        b.*
+                        b.tags
                     FROM
                         `{self.catalog}`.`{self.schema}`.`{self.table}` a
                         LEFT JOIN (
@@ -63,9 +65,6 @@ class MetadataMappingRepository:
                         and a.uc_schema_name = b.schema_name
                         and a.uc_table_name = b.table_name
                     )
-                        COMMENT 'The `dbx_sf_uniform_metadata_vw` view contains metadata information about how tables within Unity Catalog are mirrored within the Snowflake catalog. 
-
-                        This view is managed by the `DatabricksToSnowflakeMirror` library.'
                     """
             self.spark_session.sql(sqlQuery=sql_text)
         except Exception as e:
