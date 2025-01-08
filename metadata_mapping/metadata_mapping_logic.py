@@ -31,12 +31,9 @@ class MetadataMappingLogic:
                 "uc_schema_id": schema.uc_id,
                 "uc_table_id": table.uc_id,
                 "uc_catalog_name": catalog.uc_name,
-                "sf_database_name": catalog.sf_name,
-                "sf_schema_name": schema.sf_name,
-                "sf_table_name": table.sf_name,
                 "uc_schema_name": schema.uc_name,
                 "uc_table_name": table.uc_name,
-                "table_location": table.location,
+                "table_location": table.location
             }
             for schema in catalog.schemas
             for table in schema.tables
@@ -49,7 +46,8 @@ class MetadataMappingLogic:
                 "dbx_sf_uniform_metadata_id",
                 xxhash64("uc_catalog_id", "uc_schema_id", "uc_table_id"),
             )
-            .withColumn("active_sync", lit(False))
+            .withColumn("catalog_sync", lit(False))
+            .withColumn("uc_tags_added", lit(False))
             .withColumn("last_sync_dated", lit(None))
         )
 
