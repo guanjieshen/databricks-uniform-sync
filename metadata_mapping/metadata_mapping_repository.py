@@ -37,7 +37,7 @@ class MetadataMappingRepository:
     def create_metadata_joined_view(self):
         try:
             sql_text = f"""
-                        CREATE VIEW IF NOT EXISTS `{self.catalog}`.`{self.schema}`.`{self.table_vw}`
+                        CREATE VIEW IF NOT EXISTS `{self.catalog}`.`{self.schema}`.`{self.table}_vw`
                         COMMENT 'The `dbx_sf_uniform_metadata` table contains metadata information. This table is managed by the `DatabricksToSnowflakeMirror` library.' 
                         AS(
                         SELECT
