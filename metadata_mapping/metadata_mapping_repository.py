@@ -26,9 +26,9 @@ class MetadataMappingRepository:
                         table_location STRING,
                         last_sync_dated TIMESTAMP)
                         USING delta
-                        COMMENT 'The `dbx_sf_uniform_metadata` table contains metadata information. 
+                        COMMENT 'The`dbx_sf_uniform_metadata` table contains metadata information. 
 
-                        This table is managed by the `DatabricksToSnowflakeMirror` library.
+                        This table is managed by the `DatabricksToSnowflakeMirror` library.'
                     """
             self.spark_session.sql(sqlQuery=sql_text)
         except Exception as e:
@@ -38,7 +38,8 @@ class MetadataMappingRepository:
         try:
             sql_text = f"""
                         CREATE VIEW IF NOT EXISTS `{self.catalog}`.`{self.schema}`.`{self.table_vw}`
-                        COMMENT 'The `dbx_sf_uniform_metadata` table contains metadata information. This table is managed by the `DatabricksToSnowflakeMirror` library. ' AS(
+                        COMMENT 'The `dbx_sf_uniform_metadata` table contains metadata information. This table is managed by the `DatabricksToSnowflakeMirror` library.' 
+                        AS(
                         SELECT
                             a.*,
                             b.tags
