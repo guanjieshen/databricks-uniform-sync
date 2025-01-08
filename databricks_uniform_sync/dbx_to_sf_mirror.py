@@ -1,8 +1,6 @@
-from typing import List
 from databricks_unity_catalog.logic_uc_mapping import UCMappingLogic
 from databricks_unity_catalog.logic_uc_tags import UCTagsLogic
-from data_models.data_models import Catalog, Schema
-from databricks_unity_catalog.logic_yaml import YamlLogic
+from data_models.data_models import Catalog
 from metadata_mapping.metadata_mapping_logic import MetadataMappingLogic
 from pyspark.sql import SparkSession, DataFrame
 
