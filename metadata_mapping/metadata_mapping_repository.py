@@ -42,26 +42,32 @@ class MetadataMappingRepository:
                         AS(
                         SELECT
                             a.*,
-                            b.tags
-                        FROM
-                            `{self.catalog}`.`{self.schema}`.`{self.table}` a
+                            p.snowflake_database,
+                            p.snowflake_schema,
+                            p.snowflake_table,
+                            p.snowflake_uniform_syc
+                            FROM
+                            {self.catalog}`.`{self.schema}`.`{self.table}` a
                             LEFT JOIN (
-                            SELECT
+                                SELECT
                                 catalog_name,
                                 schema_name,
                                 table_name,
-                                COLLECT_LIST(
-                                NAMED_STRUCT('tag_name', tag_name, 'tag_value', tag_value) 
-                                ) as tags
-                            FROM
+                                MAX(CASE WHEN tag_name = 'snowflake_database' THEN tag_value END) AS snowflake_database,
+                                MAX(CASE WHEN tag_name = 'snowflake_schema' THEN tag_value END) AS snowflake_schema,
+                                MAX(CASE WHEN tag_name = 'snowflake_table' THEN tag_value END) AS snowflake_table,
+                                MAX(CASE WHEN tag_name = 'snowflake_uniform_syc' THEN tag_value END) AS snowflake_uniform_syc
+                                FROM
                                 system.information_schema.table_tags
-                            GROUP BY
+                                GROUP BY
                                 catalog_name,
                                 schema_name,
                                 table_name
-                            ) b on a.uc_catalog_name = b.catalog_name
-                            and a.uc_schema_name = b.schema_name
-                            and a.uc_table_name = b.table_name
+                            ) p
+                            ON
+                            a.uc_catalog_name = p.catalog_name
+                            AND a.uc_schema_name = p.schema_name
+                            AND a.uc_table_name = p.table_name;
                         )
                     """
             self.spark_session.sql(sqlQuery=sql_text)
