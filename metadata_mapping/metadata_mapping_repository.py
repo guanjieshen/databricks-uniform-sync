@@ -37,34 +37,31 @@ class MetadataMappingRepository:
     def create_metadata_joined_view(self):
         try:
             sql_text = f"""
-                    CREATE VIEW IF NOT EXISTS `{self.catalog}`.`{self.schema}`.`{self.table}_vw` 
-                    COMMENT 'Your descriptive comment here'  COMMENT 'The `dbx_sf_uniform_metadata` table contains metadata information. 
-
-                        This table is managed by the `DatabricksToSnowflakeMirror` library. 
-                    AS(
-                    SELECT
-                        a.*,
-                        b.tags
-                    FROM
-                        `{self.catalog}`.`{self.schema}`.`{self.table}` a
-                        LEFT JOIN (
+                        CREATE VIEW IF NOT EXISTS `{self.catalog}`.`{self.schema}`.`{self.table_vw}`
+                        COMMENT 'The `dbx_sf_uniform_metadata` table contains metadata information. This table is managed by the `DatabricksToSnowflakeMirror` library. ' AS(
                         SELECT
-                            catalog_name,
-                            schema_name,
-                            table_name,
-                            COLLECT_LIST(
-                            NAMED_STRUCT('tag_name', tag_name, 'tag_value', tag_value)
-                            ) as tags
+                            a.*,
+                            b.tags
                         FROM
-                            system.information_schema.table_tags
-                        GROUP BY
-                            catalog_name,
-                            schema_name,
-                            table_name
-                        ) b on a.uc_catalog_name = b.catalog_name
-                        and a.uc_schema_name = b.schema_name
-                        and a.uc_table_name = b.table_name
-                    )
+                            `{self.catalog}`.`{self.schema}`.`{self.table}` a
+                            LEFT JOIN (
+                            SELECT
+                                catalog_name,
+                                schema_name,
+                                table_name,
+                                COLLECT_LIST(
+                                NAMED_STRUCT('tag_name', tag_name, 'tag_value', tag_value) 
+                                ) as tags
+                            FROM
+                                system.information_schema.table_tags
+                            GROUP BY
+                                catalog_name,
+                                schema_name,
+                                table_name
+                            ) b on a.uc_catalog_name = b.catalog_name
+                            and a.uc_schema_name = b.schema_name
+                            and a.uc_table_name = b.table_name
+                        )
                     """
             self.spark_session.sql(sqlQuery=sql_text)
         except Exception as e:
