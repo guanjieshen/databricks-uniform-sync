@@ -28,9 +28,44 @@ class MetadataMappingRepository:
                         catalog_sync BOOLEAN,
                         last_sync_dated TIMESTAMP)
                         USING delta
-                        COMMENT 'The `dbx_sf_uniform_metadata` table contains metadata information about how tables within Unity Catalog are mirrored within the Snowflake catalog. 
+                        COMMENT 'The `dbx_sf_uniform_metadata` table contains metadata information. 
 
                         This table is managed by the `DatabricksToSnowflakeMirror` library.'
+                    """
+            self.spark_session.sql(sqlQuery=sql_text)
+        except Exception as e:
+            print(f"Error creating metadata table: {e}")
+
+    def create_metadata_joined_view(self):
+        try:
+            sql_text = f"""
+                    CREATE VIEW IF NOT EXISTS `{self.catalog}`.`{self.schema}`.`{self.table}_vw` AS(
+                    SELECT
+                        a.*,
+                        b.*
+                    FROM
+                        `{self.catalog}`.`{self.schema}`.`{self.table}` a
+                        LEFT JOIN (
+                        SELECT
+                            catalog_name,
+                            schema_name,
+                            table_name,
+                            COLLECT_LIST(
+                            NAMED_STRUCT('tag_name', tag_name, 'tag_value', tag_value)
+                            ) as tags
+                        FROM
+                            system.information_schema.table_tags
+                        GROUP BY
+                            catalog_name,
+                            schema_name,
+                            table_name
+                        ) b on a.uc_catalog_name = b.catalog_name
+                        and a.uc_schema_name = b.schema_name
+                        and a.uc_table_name = b.table_name
+                    )
+                        COMMENT 'The `dbx_sf_uniform_metadata_vw` view contains metadata information about how tables within Unity Catalog are mirrored within the Snowflake catalog. 
+
+                        This view is managed by the `DatabricksToSnowflakeMirror` library.'
                     """
             self.spark_session.sql(sqlQuery=sql_text)
         except Exception as e:
@@ -56,7 +91,7 @@ class MetadataMappingRepository:
                     "uc_catalog_name": "updates.uc_catalog_name",
                     "uc_schema_name": "updates.uc_schema_name",
                     "uc_table_name": "updates.uc_table_name",
-                    "table_location": "updates.table_location"
+                    "table_location": "updates.table_location",
                 }
             )
             .whenNotMatchedInsertAll()

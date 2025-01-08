@@ -14,9 +14,10 @@ class MetadataMappingLogic:
         )
         self.spark_session = spark_session
 
-    def create_metadata_table(self):
+    def create_metadata_tables(self):
         try:
             self.metadata_mapping_repository.create_metadata_table()
+            self.metadata_mapping_repository.create_metadata_joined_view()
         except Exception as e:
             print(f"Error creating metadata table: {e}")
 

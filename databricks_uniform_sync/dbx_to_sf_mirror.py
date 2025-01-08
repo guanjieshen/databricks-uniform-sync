@@ -42,7 +42,7 @@ class DatabricksToSnowflakeMirror:
 
     def create_metadata_tables(self):
         # Create metadata tables
-        self.metadata_mapping_logic.create_metadata_table()
+        self.metadata_mapping_logic.create_metadata_tables()
 
     def refresh_uc_metadata(self, catalog, schema=None, table=None):
         # Ensure the metadata table is created
