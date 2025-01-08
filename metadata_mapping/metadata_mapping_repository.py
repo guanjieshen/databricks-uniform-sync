@@ -32,7 +32,7 @@ class MetadataMappingRepository:
                         This table is managed by the `DatabricksToSnowflakeMirror` library.'
                     """
             self.spark_session.sql(sqlQuery=sql_text)
-            logging.info("Metadata table `{self.catalog}`.`{self.schema}`.`{self.table}` confirmed.")
+            logging.info(f"Metadata table `{self.catalog}`.`{self.schema}`.`{self.table}` confirmed.")
         except Exception as e:
             print(f"Error creating metadata table: {e}")
 
@@ -77,7 +77,7 @@ class MetadataMappingRepository:
                         )
                     """
             self.spark_session.sql(sqlQuery=sql_text)
-            logging.info("Metadata view `{self.catalog}`.`{self.schema}`.`{self.table}` confirmed.")
+            logging.info(f"Metadata view `{self.catalog}`.`{self.schema}`.`{self.table}` confirmed.")
         except Exception as e:
             print(f"Error creating metadata table: {e}")
 
