@@ -67,7 +67,7 @@ class MetadataMappingRepository:
                             ON
                             a.uc_catalog_name = p.catalog_name
                             AND a.uc_schema_name = p.schema_name
-                            AND a.uc_table_name = p.table_name;
+                            AND a.uc_table_name = p.table_name
                         )
                     """
             self.spark_session.sql(sqlQuery=sql_text)
