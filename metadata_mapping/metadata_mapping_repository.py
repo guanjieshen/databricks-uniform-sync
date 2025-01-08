@@ -47,7 +47,7 @@ class MetadataMappingRepository:
                             p.snowflake_table,
                             p.snowflake_uniform_syc
                             FROM
-                            {self.catalog}`.`{self.schema}`.`{self.table}` a
+                            `{self.catalog}`.`{self.schema}`.`{self.table}` a
                             LEFT JOIN (
                                 SELECT
                                 catalog_name,
