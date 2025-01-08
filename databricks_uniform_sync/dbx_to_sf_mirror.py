@@ -76,7 +76,6 @@ class DatabricksToSnowflakeMirror:
                 self.uc_tags_logic.add_uc_metadata_tags(
                     table.uc_catalog_name, table.uc_schema_name, table.uc_table_name
                 )
-                table.tags_added = True
             except Exception as e:
                 print(f"Error adding tags to table: {e}")
-                table.tags_added = False
+
