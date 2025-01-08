@@ -66,6 +66,8 @@ class UnityCatalogRepository:
             {catalog_name}.{schema_name}.{table_name}
             SET
             TAGS (
+                'snowflake_external_volume' = '',
+                'snowflake_catalog_integration' = 'uc_{catalog_name}_{schema_name}',
                 'snowflake_database' = '{catalog_name}',
                 'snowflake_schema' = '{schema_name}',
                 'snowflake_table' = '{table_name}',

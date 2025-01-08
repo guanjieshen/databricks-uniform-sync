@@ -42,6 +42,8 @@ class MetadataMappingRepository:
                         AS(
                         SELECT
                             a.*,
+                            p.snowflake_external_volume,
+                            p.snowflake_catalog_integration,
                             p.snowflake_database,
                             p.snowflake_schema,
                             p.snowflake_table,
@@ -53,6 +55,8 @@ class MetadataMappingRepository:
                                 catalog_name,
                                 schema_name,
                                 table_name,
+                                MAX(CASE WHEN tag_name = 'snowflake_external_volume' THEN tag_value END) AS snowflake_external_volume,
+                                MAX(CASE WHEN tag_name = 'snowflake_catalog_integration' THEN tag_value END) AS snowflake_catalog_integration,
                                 MAX(CASE WHEN tag_name = 'snowflake_database' THEN tag_value END) AS snowflake_database,
                                 MAX(CASE WHEN tag_name = 'snowflake_schema' THEN tag_value END) AS snowflake_schema,
                                 MAX(CASE WHEN tag_name = 'snowflake_table' THEN tag_value END) AS snowflake_table,

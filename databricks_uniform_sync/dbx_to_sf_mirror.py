@@ -83,3 +83,12 @@ class DatabricksToSnowflakeMirror:
                 )
             except Exception as e:
                 print(f"Error adding tags to table: {e}")
+
+    def sf_create_external_volumes():
+        pass
+
+    def sf_create_catalog_integrations():
+        pass
+
+    def sync_catalogs():
+        pass
