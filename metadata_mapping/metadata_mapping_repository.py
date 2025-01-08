@@ -24,7 +24,7 @@ class MetadataMappingRepository:
                         uc_table_id STRING,
                         uc_table_name STRING,
                         table_location STRING,
-                        uc_tags_added: BOOLEAN,
+                        uc_tags_added BOOLEAN,
                         catalog_sync BOOLEAN,
                         last_sync_dated TIMESTAMP)
                         USING delta
