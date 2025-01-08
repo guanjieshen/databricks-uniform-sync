@@ -9,7 +9,7 @@ class MetadataMappingLogic:
     def __init__(
         self, spark_session: SparkSession, catalog: str, schema: str, table: str
     ):
-        self.metadata_mapping_repository = MetadataMappingRepository(
+        self.metadata_mapping_repository:MetadataMappingRepository = MetadataMappingRepository(
             spark_session=spark_session, catalog=catalog, schema=schema, table=table
         )
         self.spark_session = spark_session
@@ -19,6 +19,9 @@ class MetadataMappingLogic:
             self.metadata_mapping_repository.create_metadata_table()
         except Exception as e:
             print(f"Error creating metadata table: {e}")
+
+    def get_metadata_table(self)->DataFrame:
+        return self.metadata_mapping_repository.get_metadata_table()
 
     def refresh_metadata_table(self, catalog: Catalog):
         # Flatten the nested structure

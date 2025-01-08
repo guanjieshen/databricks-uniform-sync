@@ -1,10 +1,11 @@
 from typing import List
 from databricks_unity_catalog.logic_uc_mapping import UCMappingLogic
+from databricks_unity_catalog.logic_uc_tags import UCTagsLogic
 from data_models.data_models import Catalog, Schema
 from databricks_unity_catalog.logic_yaml import YamlLogic
-from metadata_mapping.metdata_mapping_logic import MetadataMappingLogic
-from pyspark.sql import SparkSession
-from pyspark.sql.functions import xxhash64, lit, current_timestamp
+from metadata_mapping.metadata_mapping_logic import MetadataMappingLogic
+from pyspark.sql import SparkSession, DataFrame
+
 
 class DatabricksToSnowflakeMirror:
     def __init__(
@@ -33,6 +34,11 @@ class DatabricksToSnowflakeMirror:
         self.uc_mapping_logic: UCMappingLogic = UCMappingLogic(
             workspace_url=self.dbx_workspace_url, bearer_token=self.dbx_workspace_pat
         )
+        self.uc_tags_logic: UCTagsLogic = UCTagsLogic(
+            spark_session=spark_session,
+            workspace_url=dbx_workspace_url,
+            bearer_token=dbx_workspace_pat,
+        )
 
     def create_metadata_tables(self):
         # Create metadata tables
@@ -49,6 +55,28 @@ class DatabricksToSnowflakeMirror:
 
         # Refresh the metadata table
         self.metadata_mapping_logic.refresh_metadata_table(catalog=catalog)
-        
-        
 
+    def add_uc_metadata_tags(self):
+        # Get the metadata table
+        metadata_table: DataFrame = self.metadata_mapping_logic.get_metadata_table()
+
+        # Convert metadata table to a list
+        metadata_table_results = metadata_table.select(
+            metadata_table.uc_catalog_name,
+            metadata_table.uc_schema_name,
+            metadata_table.uc_table_name,
+            metadata_table.dbx_sf_uniform_metadata_id,
+        ).collect()
+
+        # Add tags to the tables
+        for table in metadata_table_results:
+            try:
+                self.uc_tags_logic.add_uc_metadata_tags(
+                    table.uc_catalog_name, table.uc_schema_name, table.uc_table_name
+                )
+                table.tags_added = True
+            except Exception as e:
+                print(f"Error adding tags to table: {e}")
+                table.tags_added = False
+
+            

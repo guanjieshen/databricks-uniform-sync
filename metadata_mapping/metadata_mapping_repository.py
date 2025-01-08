@@ -38,6 +38,11 @@ class MetadataMappingRepository:
         except Exception as e:
             print(f"Error creating metadata table: {e}")
 
+    def get_metadata_table(self) -> DataFrame:
+        return self.spark_session.sql(
+            f"SELECT * FROM `{self.catalog}`.`{self.schema}`.`{self.table}`"
+        )
+
     def upsert_metadata_table(self, df_updates: DataFrame):
         metadata_table = DeltaTable.forName(
             self.spark_session, f"`{self.catalog}`.`{self.schema}`.`{self.table}`"
