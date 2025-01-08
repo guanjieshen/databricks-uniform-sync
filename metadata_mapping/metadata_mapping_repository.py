@@ -56,10 +56,7 @@ class MetadataMappingRepository:
                     "uc_catalog_name": "updates.uc_catalog_name",
                     "uc_schema_name": "updates.uc_schema_name",
                     "uc_table_name": "updates.uc_table_name",
-                    "table_location": "updates.table_location",
-                    "sf_database_name": "updates.sf_database_name",
-                    "sf_schema_name": "updates.sf_schema_name",
-                    "sf_table_name": "updates.sf_table_name",
+                    "table_location": "updates.table_location"
                 }
             )
             .whenNotMatchedInsertAll()
