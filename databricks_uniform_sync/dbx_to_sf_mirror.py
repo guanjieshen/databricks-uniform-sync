@@ -51,6 +51,7 @@ class DatabricksToSnowflakeMirror:
                 spark_session=self.spark_session,
                 metadata_catalog=self.metadata_catalog,
                 metadata_schema=self.metadata_schema,
+                metadata_table=self.metadata_table,
             )
         )
 
@@ -102,10 +103,16 @@ class DatabricksToSnowflakeMirror:
             except Exception as e:
                 print(f"Error adding tags to table: {e}")
 
-    def sf_create_external_volumes(self,generate_sql_only: bool = True, azure_tenant_id: str = None):
+    def sf_create_external_volumes(
+        self, generate_sql_only: bool = True, azure_tenant_id: str = None
+    ):
         if generate_sql_only:
-            storage_locations = self.dbx_to_sf_helpers.fetch_uc_storage_locations(tenant_id=azure_tenant_id)
-            return self.dbx_to_sf_helpers.create_sf_external_volume_ddls(storage_locations)
+            storage_locations = self.dbx_to_sf_helpers.fetch_uc_storage_locations(
+                tenant_id=azure_tenant_id
+            )
+            return self.dbx_to_sf_helpers.create_sf_external_volume_ddls(
+                storage_locations
+            )
 
         else:
             pass
