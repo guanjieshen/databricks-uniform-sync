@@ -8,7 +8,7 @@ from snowflake_iceberg_catalog.logic_snowflake_ext_vol import (
 from metadata_mapping.metadata_mapping_logic import MetadataMappingLogic
 from pyspark.sql import SparkSession, DataFrame
 from data_models.data_models import AzureStorageDetails
-
+from pyspark.sql import Row
 
 class DatabricksToSnowflakeHelpers:
     """
@@ -53,14 +53,14 @@ class DatabricksToSnowflakeHelpers:
             >>> helper.fetch_uc_storage_locations("tenant123")
             [AzureStorageDetails(account_name="storage1", container_name="container1", tenant_id="tenant123")]
         """
-        metadata_view_df: DataFrame = self.metadata_mapping_logic.get_metadata_az_storage()
+        metadata_view_df: List[Row] = self.metadata_mapping_logic.get_metadata_az_storage()
 
         # Extract required fields and convert to a list of AzureStorageDetails objects
         return self._convert_df_to_storage_details(metadata_view_df, tenant_id)
 
     @staticmethod
     def _convert_df_to_storage_details(
-        metadata_df: DataFrame, tenant_id: str
+        metadata_df: List[Row], tenant_id: str
     ) -> List[AzureStorageDetails]:
         """
         Converts a Spark DataFrame containing Azure storage metadata into a list of AzureStorageDetails.
@@ -78,7 +78,7 @@ class DatabricksToSnowflakeHelpers:
                 container_name=row["az_container_name"],
                 tenant_id=tenant_id,
             )
-            for row in metadata_df.collect()
+            for row in metadata_df
         ]
 
     def create_sf_external_volume_ddls(

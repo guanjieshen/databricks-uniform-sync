@@ -1,9 +1,10 @@
+from typing import List
 from pyspark.sql import SparkSession, DataFrame
 from data_models.data_models import Catalog
 from metadata_mapping.metadata_mapping_repository import MetadataMappingRepository
 from pyspark.sql.functions import xxhash64, lit, current_timestamp
 from pyspark.sql.functions import collect_list, struct
-
+from pyspark.sql import Row
 
 class MetadataMappingLogic:
 
@@ -30,7 +31,7 @@ class MetadataMappingLogic:
     def get_metadata_view(self) -> DataFrame:
         return self.metadata_mapping_repository.get_metadata_view()
 
-    def get_metadata_az_storage(self) -> DataFrame:
+    def get_metadata_az_storage(self) ->List[Row]:
         return (
             self.get_metadata_view()
             .select(
