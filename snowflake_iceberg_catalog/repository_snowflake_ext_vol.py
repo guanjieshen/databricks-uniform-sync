@@ -20,14 +20,14 @@ class SnowflakeExternalVolumeRepository:
             "password": password,
         }
         # Create a connection to Snowflake for SQL
-        self.connection = snow.connect(
-            account=connection_parameters["account"],
-            user=connection_parameters["user"],
-            password=connection_parameters["password"],
-        )
-        # Create a session to Snowflake for Snowpark
-        session: Session = Session.builder.configs(connection_parameters).create()
-        self.root: Root = Root(session)
+        # self.connection = snow.connect(
+        #     account=connection_parameters["account"],
+        #     user=connection_parameters["user"],
+        #     password=connection_parameters["password"],
+        # )
+        # # Create a session to Snowflake for Snowpark
+        # session: Session = Session.builder.configs(connection_parameters).create()
+        # self.root: Root = Root(session)
 
     def generate_ddl_azure_ext_vol(
         self, ext_vol_name:str, storage_name:str, az_tenant_id:str, az_storage_account_name:str, az_container_name:str
