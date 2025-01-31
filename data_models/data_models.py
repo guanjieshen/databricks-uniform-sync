@@ -8,6 +8,7 @@ class Table(BaseModel):
     uc_name: str
     sf_name: str
     location: str
+    table_type:str
 
 
 class Schema(BaseModel):

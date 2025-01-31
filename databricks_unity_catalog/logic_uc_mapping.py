@@ -115,6 +115,7 @@ class UCMappingLogic:
                         uc_name=table.name,
                         sf_name=table.name,
                         location=table_info.storage_location,
+                        table_type=table_info.table_type,
                     )
                 )
         return data_schema
