@@ -8,6 +8,7 @@ class Table(BaseModel):
     uc_name: str
     sf_name: str
     location: str
+    table_type:str
 
 
 class Schema(BaseModel):
@@ -47,3 +48,9 @@ class UnityCatalogIcebergTables(BaseModel):
 class UnityCatalogIcebergSchema(BaseModel):
     namespaces: List[List[str]]  # A list of lists of strings
     next_page_token: Optional[str] = Field(None, alias="next-page-token")
+
+
+class AzureStorageDetails(BaseModel):
+    account_name: str
+    container_name: str
+    tenant_id: str

@@ -25,6 +25,7 @@ class MetadataMappingRepository:
                         uc_table_id STRING,
                         uc_table_name STRING,
                         table_location STRING,
+                        table_type STRING,
                         last_sync_dated TIMESTAMP)
                         USING delta
                         COMMENT 'The`dbx_sf_uniform_metadata` table contains metadata information. 
@@ -44,6 +45,8 @@ class MetadataMappingRepository:
                         AS(
                         SELECT
                             a.*,
+                            REGEXP_EXTRACT(a.table_location, '@([^\\.]+)', 1) AS az_storage_account,
+                            REGEXP_EXTRACT(a.table_location, 'abfss://([^@]+)', 1) AS az_container_name,
                             p.snowflake_external_volume,
                             p.snowflake_catalog_integration,
                             p.snowflake_database,
@@ -107,6 +110,7 @@ class MetadataMappingRepository:
                     "uc_schema_name": "updates.uc_schema_name",
                     "uc_table_name": "updates.uc_table_name",
                     "table_location": "updates.table_location",
+                    "table_type": "updates.table_type"
                 }
             )
             .whenNotMatchedInsertAll()

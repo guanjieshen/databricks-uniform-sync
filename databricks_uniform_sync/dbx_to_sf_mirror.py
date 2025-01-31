@@ -3,10 +3,14 @@ from databricks_unity_catalog.logic_uc_tags import UCTagsLogic
 from data_models.data_models import Catalog
 from metadata_mapping.metadata_mapping_logic import MetadataMappingLogic
 from pyspark.sql import SparkSession, DataFrame
+from dbx_to_sf_helpers import DatabricksToSnowflakeHelpers
 import logging
 
 # Configure the logging system
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+)
+
 
 class DatabricksToSnowflakeMirror:
     def __init__(
@@ -25,7 +29,7 @@ class DatabricksToSnowflakeMirror:
         self.metadata_schema: str = metadata_schema
         self.metadata_table: str = metadata_table
 
-        # Create an instance of the MappingLogic class and YamlLogic class
+        # Instantiate all of the required repository and logic classes
         self.metadata_mapping_logic: MetadataMappingLogic = MetadataMappingLogic(
             spark_session=self.spark_session,
             catalog=self.metadata_catalog,
@@ -42,11 +46,17 @@ class DatabricksToSnowflakeMirror:
             workspace_url=dbx_workspace_url,
             bearer_token=dbx_workspace_pat,
         )
+        self.dbx_to_sf_helpers: DatabricksToSnowflakeHelpers = (
+            DatabricksToSnowflakeHelpers(
+                spark_session=self.spark_session,
+                metadata_catalog=self.metadata_catalog,
+                metadata_schema=self.metadata_schema,
+            )
+        )
 
     def create_metadata_tables(self):
         # Create metadata tables
         self.metadata_mapping_logic.create_metadata_tables()
-
 
     def refresh_uc_metadata(self, catalog, schema=None, table=None):
         # Ensure the metadata table is created
@@ -59,7 +69,7 @@ class DatabricksToSnowflakeMirror:
 
         # Refresh the metadata table
         self.metadata_mapping_logic.refresh_metadata_table(catalog=catalog)
-        logging.info("Metadata refresh completed.")
+        logging.info(f"Metadata refresh completed for catalog: {catalog}")
 
     def refresh_uc_metadata_tags(self):
         # Get the metadata table
@@ -86,18 +96,25 @@ class DatabricksToSnowflakeMirror:
                 self.uc_tags_logic.add_uc_metadata_tags(
                     table.uc_catalog_name, table.uc_schema_name, table.uc_table_name
                 )
-                logging.info(f"Metadata tags to table: {table.uc_catalog_name}.{table.uc_schema_name}.{table.uc_table_name}")
+                logging.info(
+                    f"Adding UC discovery tags to table: {table.uc_catalog_name}.{table.uc_schema_name}.{table.uc_table_name}"
+                )
             except Exception as e:
                 print(f"Error adding tags to table: {e}")
 
-    def sf_create_external_volumes(dry_run: bool = False):
-        pass
+    def sf_create_external_volumes(self,generate_sql_only: bool = True, azure_tenant_id: str = None):
+        if generate_sql_only:
+            storage_locations = self.dbx_to_sf_helpers.fetch_uc_storage_locations(tenant_id=azure_tenant_id)
+            return self.dbx_to_sf_helpers.create_sf_external_volume_ddls(storage_locations)
+
+        else:
+            pass
 
     def sf_create_catalog_integrations(
         self, refresh_interval: int = 120, workspace_url=None, dry_run: bool = False
     ):
         workspace_url: str = workspace_url or self.dbx_workspace_url
-        #TODO: This code should be moved into the logic class.
+        # TODO: This code should be moved into the logic class.
         # catalog_url: str = f"{workspace_url}/api/2.1/unity-catalog/iceberg"
 
         # Get the metadata table
