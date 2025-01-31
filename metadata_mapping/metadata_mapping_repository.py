@@ -80,7 +80,7 @@ class MetadataMappingRepository:
                         )
                     """
             self.spark_session.sql(sqlQuery=sql_text)
-            logging.info(f"Metadata view `{self.catalog}`.`{self.schema}`.`{self.table}` confirmed.")
+            logging.info(f"Metadata view `{self.catalog}`.`{self.schema}`.`{self.table}_vw` confirmed.")
         except Exception as e:
             print(f"Error creating metadata table: {e}")
 
