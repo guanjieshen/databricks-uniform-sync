@@ -1,4 +1,4 @@
-from snowflake_iceberg_catalog.logic_snowflake_ext_vol import (
+from snowflake_iceberg_catalog.repository_snowflake_ext_vol import (
     SnowflakeExternalVolumeRepository,
 )
 
