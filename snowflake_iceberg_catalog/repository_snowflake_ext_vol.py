@@ -33,15 +33,15 @@ class SnowflakeExternalVolumeRepository:
         self, ext_vol_name:str, storage_name:str, az_tenant_id:str, az_storage_account_name:str, az_container_name:str
     ):
         return f""" 
-        CREATE EXTERNAL VOLUME {ext_vol_name}
-            STORAGE_LOCATIONS =
-                (
-                    (
-                        NAME = '{storage_name}'
-                        STORAGE_PROVIDER = 'AZURE'
-                        STORAGE_BASE_URL = 'azure://{az_storage_account_name}.blob.core.windows.net/{az_container_name}/'
-                        AZURE_TENANT_ID = '{az_tenant_id}'
-                    )
-                )
-            ALLOW_WRITES = FALSE;
+CREATE EXTERNAL VOLUME {ext_vol_name}
+    STORAGE_LOCATIONS =
+        (
+            (
+                NAME = '{storage_name}'
+                STORAGE_PROVIDER = 'AZURE'
+                STORAGE_BASE_URL = 'azure://{az_storage_account_name}.blob.core.windows.net/{az_container_name}'
+                AZURE_TENANT_ID = '{az_tenant_id}'
+            )
+        )
+    ALLOW_WRITES = FALSE;
         """

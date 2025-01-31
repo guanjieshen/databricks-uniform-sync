@@ -5,6 +5,8 @@ from metadata_mapping.metadata_mapping_repository import MetadataMappingReposito
 from pyspark.sql.functions import xxhash64, lit, current_timestamp
 from pyspark.sql.functions import collect_list, struct
 from pyspark.sql import Row
+from pyspark.sql.functions import xxhash64, lit, abs as ps_abs
+
 
 class MetadataMappingLogic:
 
@@ -31,7 +33,7 @@ class MetadataMappingLogic:
     def get_metadata_view(self) -> DataFrame:
         return self.metadata_mapping_repository.get_metadata_view()
 
-    def get_metadata_az_storage(self) ->List[Row]:
+    def get_metadata_az_storage(self) -> List[Row]:
         return (
             self.get_metadata_view()
             .select(
@@ -64,7 +66,7 @@ class MetadataMappingLogic:
             self.spark_session.createDataFrame(rows)
             .withColumn(
                 "dbx_sf_uniform_metadata_id",
-                xxhash64("uc_catalog_id", "uc_schema_id", "uc_table_id"),
+                ps_abs(xxhash64("uc_catalog_id", "uc_schema_id", "uc_table_id")),
             )
             .withColumn("last_sync_dated", lit(None))
         )
