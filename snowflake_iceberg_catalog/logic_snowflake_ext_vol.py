@@ -18,7 +18,7 @@ class SnowflakeExternalVolumeLogic:
         az_tenant_id: str = None,
         az_storage_account_name: str = None,
         az_container_name: str = None,
-    ):
+    )->str:
         
         if only_generate_sql:
             ddl_query = self.snowflake_ext_vol_repo.generate_ddl_azure_ext_vol(
