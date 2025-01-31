@@ -3,7 +3,7 @@ from databricks_unity_catalog.logic_uc_tags import UCTagsLogic
 from data_models.data_models import Catalog
 from metadata_mapping.metadata_mapping_logic import MetadataMappingLogic
 from pyspark.sql import SparkSession, DataFrame
-from dbx_to_sf_helpers import DatabricksToSnowflakeHelpers
+from databricks_uniform_sync.dbx_to_sf_helpers import DatabricksToSnowflakeHelpers
 import logging
 
 # Configure the logging system
