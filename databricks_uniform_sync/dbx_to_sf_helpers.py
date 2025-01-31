@@ -19,7 +19,7 @@ class DatabricksToSnowflakeHelpers:
     """
 
     def __init__(
-        self, spark_session: SparkSession, metadata_catalog: str, metadata_schema: str
+        self, spark_session: SparkSession, metadata_catalog: str, metadata_schema: str, metadata_table:str
     ):
         """
         Initializes the helper class.
@@ -34,6 +34,7 @@ class DatabricksToSnowflakeHelpers:
             spark_session=spark_session,
             catalog=metadata_catalog,
             schema=metadata_schema,
+            table = metadata_table
         )
         self.sf_ext_vol_repo = SnowflakeExternalVolumeRepository()
         self.sf_ext_vol_logic = SnowflakeExternalVolumeLogic(self.sf_ext_vol_repo)
