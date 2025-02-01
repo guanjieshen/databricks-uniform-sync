@@ -88,7 +88,7 @@ class DatabricksToSnowflakeHelpers:
         )
         return [
             SnowflakeCatIntlDTO(
-                snowflake_catalog_integration=row["snowflake_catalog_integration"],
+                catalog_integration_name=row["snowflake_catalog_integration"],
                 uc_catalog_name=row["uc_catalog_name"],
                 uc_schema_name=row["uc_schema_name"],
                 uc_endpoint=uc_endpoint,
