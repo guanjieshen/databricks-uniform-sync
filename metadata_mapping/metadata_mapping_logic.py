@@ -73,7 +73,11 @@ class MetadataMappingLogic:
             self.spark_session.createDataFrame(rows)
             .withColumn(
                 "dbx_sf_uniform_metadata_id",
-                ps_abs(xxhash64("uc_catalog_id", "uc_schema_id", "uc_table_id")),
+                ps_abs(
+                    xxhash64(
+                        col("uc_catalog_id"), col("uc_schema_id"), col("uc_table_id")
+                    )
+                ),
             )
             .withColumn(
                 "az_storage_account",
@@ -87,17 +91,17 @@ class MetadataMappingLogic:
                 "snowflake_external_volume",
                 concat(
                     lit("az_dbx_uc_extvol_"),
-                    xxhash64("az_storage_account", "az_container_name"),
-                )
-                .withColumn(
-                    "snowflake_catalog_integration",
-                    concat(
-                        lit("az_dbx_uc_catint_"),
-                        xxhash64("uc_catalog_id", "uc_schema_id"),
-                    ),
-                )
-                .withColumn("last_sync_dated", lit(None)),
+                    xxhash64(col("az_storage_account"), col("az_container_name")),
+                ),
             )
+            .withColumn(
+                "snowflake_catalog_integration",
+                concat(
+                    lit("az_dbx_uc_catint_"),
+                    xxhash64(col("uc_catalog_id"), col("uc_schema_id")),
+                ),
+            )
+            .withColumn("last_sync_dated", lit(None))
         )
 
         try:
