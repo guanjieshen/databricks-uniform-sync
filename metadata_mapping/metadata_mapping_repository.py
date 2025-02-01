@@ -116,7 +116,7 @@ class MetadataMappingRepository:
                     "table_location": "updates.table_location",
                     "table_type": "updates.table_type",
                     "snowflake_external_volume": "updates.snowflake_external_volume",
-                    "snowflake_external_volume_storage": "updates.snowflake_external_volume_stroage",
+                    "snowflake_external_volume_storage": "updates.snowflake_external_volume_storage",
                     "snowflake_catalog_integration": "updates.snowflake_catalog_integration",
                     "az_storage_account": "updates.az_storage_account",
                     "az_container_name": "updates.az_container_name",
