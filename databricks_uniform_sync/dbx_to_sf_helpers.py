@@ -6,7 +6,7 @@ from snowflake_iceberg_catalog.logic_snowflake_ext_vol import (
     SnowflakeExternalVolumeLogic,
 )
 from metadata_mapping.metadata_mapping_logic import MetadataMappingLogic
-from pyspark.sql import SparkSession, DataFrame
+from pyspark.sql import SparkSession
 from data_models.data_models import SnowflakeExtVolDTO
 from pyspark.sql import Row
 
@@ -39,7 +39,7 @@ class DatabricksToSnowflakeHelpers:
         self.sf_ext_vol_repo = SnowflakeExternalVolumeRepository()
         self.sf_ext_vol_logic = SnowflakeExternalVolumeLogic(self.sf_ext_vol_repo)
 
-    def fetch_uc_storage_locations(self, tenant_id: str) -> List[AzureStorageDetails]:
+    def fetch_uc_storage_locations(self, tenant_id: str) -> List[SnowflakeExtVolDTO]:
         """
         Fetches Azure storage locations from the metadata catalog.
 
@@ -47,11 +47,11 @@ class DatabricksToSnowflakeHelpers:
             tenant_id (str): The Azure tenant ID.
 
         Returns:
-            List[AzureStorageDetails]: A list of storage account and container details.
+            List[SnowflakeExtVolDTO]: A list of storage account and container details.
 
         Example:
             >>> helper.fetch_uc_storage_locations("tenant123")
-            [AzureStorageDetails(account_name="storage1", container_name="container1", tenant_id="tenant123")]
+            [SnowflakeExtVolDTO(account_name="storage1", container_name="container1", tenant_id="tenant123")]
         """
         metadata_view_df: List[Row] = self.metadata_mapping_logic.get_metadata_az_sf_external_volume()
 
