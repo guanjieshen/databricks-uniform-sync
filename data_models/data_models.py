@@ -82,3 +82,16 @@ class SnowflakeExtVolDTO(BaseModel):
     account_name: str                  # Account name related to the external volume.
     container_name: str                # Container name used in the external volume.
     tenant_id: str                     # Identifier for the tenant.
+
+
+class SnowflakeCatIntlDTO(BaseModel):
+    """
+    Data Transfer Object (DTO) for Snowflake catalog integrations.
+    """
+    catalog_integration_name: str          # Name of the external volume.
+    uc_catalog_name: str  # Storage name associated with the external volume.
+    uc_schema_name: str                  # Account name related to the external volume.
+    uc_endpoint: str                # Container name used in the external volume.
+    refresh_interval_seconds: int                     # Identifier for the tenant.
+    oauth_client_id: str                # Container name used in the external volume.
+    oauth_client_secret: str                     # Identifier for the tenant.

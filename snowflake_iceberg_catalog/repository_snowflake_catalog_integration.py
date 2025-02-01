@@ -49,21 +49,21 @@ class SnowflakeCatalogIntegrationRepository:
     ) -> str:
 
         return f"""
-            CREATE CATALOG INTEGRATION {sf_integration_name} IF NOT EXISTS
-            CATALOG_SOURCE = ICEBERG_REST
-            TABLE_FORMAT = ICEBERG
-            CATALOG_NAMESPACE = '{uc_schema_name}'
-            REST_CONFIG = (
-                CATALOG_URI = '{uc_endpoint}',
-                WAREHOUSE = '{uc_catalog_name}'
-            )
-            REST_AUTHENTICATION = (
-                TYPE = OAUTH
-                OAUTH_TOKEN_URI = '{oidc_endpoint}'
-                OAUTH_CLIENT_ID = '{oauth_client_id}'
-                OAUTH_CLIENT_SECRET = '{oauth_client_secret}'
-                OAUTH_ALLOWED_SCOPES = ('all-apis', 'sql')
-            )
-            ENABLED = TRUE
-            REFRESH_INTERVAL_SECONDS = {refresh_interval_seconds};
+CREATE CATALOG INTEGRATION {sf_integration_name} IF NOT EXISTS
+CATALOG_SOURCE = ICEBERG_REST
+TABLE_FORMAT = ICEBERG
+CATALOG_NAMESPACE = '{uc_schema_name}'
+REST_CONFIG = (
+    CATALOG_URI = '{uc_endpoint}',
+    WAREHOUSE = '{uc_catalog_name}'
+)
+REST_AUTHENTICATION = (
+    TYPE = OAUTH
+    OAUTH_TOKEN_URI = '{oidc_endpoint}'
+    OAUTH_CLIENT_ID = '{oauth_client_id}'
+    OAUTH_CLIENT_SECRET = '{oauth_client_secret}'
+    OAUTH_ALLOWED_SCOPES = ('all-apis', 'sql')
+)
+ENABLED = TRUE
+REFRESH_INTERVAL_SECONDS = {refresh_interval_seconds};
         """

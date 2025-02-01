@@ -1,6 +1,11 @@
+from typing import List
 from databricks_unity_catalog.logic_uc_mapping import UCMappingLogic
 from databricks_unity_catalog.logic_uc_tags import UCTagsLogic
-from data_models.data_models import Catalog
+from data_models.data_models import (
+    Catalog,
+    SnowflakeExtVolDTO,
+    SnowflakeIcebergTableConfig,
+)
 from metadata_mapping.metadata_mapping_logic import MetadataMappingLogic
 from pyspark.sql import SparkSession, DataFrame
 from databricks_uniform_sync.dbx_to_sf_helpers import DatabricksToSnowflakeHelpers
@@ -108,15 +113,32 @@ class DatabricksToSnowflakeMirror:
         self, generate_sql_only: bool = True, azure_tenant_id: str = None
     ):
         if generate_sql_only:
-            storage_locations = self.dbx_to_sf_helpers.fetch_uc_storage_locations(
-                tenant_id=azure_tenant_id
+            external_locations: List[SnowflakeExtVolDTO] = (
+                self.dbx_to_sf_helpers.fetch_uc_storage_locations(
+                    tenant_id=azure_tenant_id
+                )
             )
             return self.dbx_to_sf_helpers.create_sf_external_volume_ddls(
-                storage_locations
+                external_locations
             )
 
     def sf_create_catalog_integrations(
-        self, refresh_interval: int = 120, workspace_url=None, dry_run: bool = False
+        self,
+        oauth_client_id: str,
+        oauth_client_secret: str,
+        generate_sql_only: bool = True,
+        refresh_interval_seconds: str = 3600,
     ):
+        catalog_integrations: List[SnowflakeIcebergTableConfig] = (
+            self.dbx_to_sf_helpers.fetch_uc_catalog_integration(
+                uc_endpoint=self.dbx_workspace_url,
+                refresh_interval_seconds=refresh_interval_seconds,
+                oauth_client_id=oauth_client_id,
+                oauth_client_secret=oauth_client_secret,
+            )
+        )
+        return self.dbx_to_sf_helpers.create_sf_cat_int_ddls(
+            catalog_integrations
+        )
+        # Get uc metadata for catalog integrations.
         pass
-

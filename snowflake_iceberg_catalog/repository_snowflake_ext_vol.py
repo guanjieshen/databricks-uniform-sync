@@ -54,14 +54,14 @@ class SnowflakeExternalVolumeRepository:
         :return: SQL statement string
         """
         return f"""
-        CREATE EXTERNAL VOLUME IF NOT EXISTS {ext_vol_name}
-            STORAGE_LOCATIONS = (
-                (
-                    NAME = '{storage_name}',
-                    STORAGE_PROVIDER = 'AZURE',
-                    STORAGE_BASE_URL = 'azure://{az_storage_account_name}.blob.core.windows.net/{az_container_name}',
-                    AZURE_TENANT_ID = '{az_tenant_id}'
-                )
-            )
-            ALLOW_WRITES = FALSE;
+CREATE EXTERNAL VOLUME IF NOT EXISTS {ext_vol_name}
+    STORAGE_LOCATIONS = (
+        (
+            NAME = '{storage_name}',
+            STORAGE_PROVIDER = 'AZURE',
+            STORAGE_BASE_URL = 'azure://{az_storage_account_name}.blob.core.windows.net/{az_container_name}',
+            AZURE_TENANT_ID = '{az_tenant_id}'
+        )
+    )
+    ALLOW_WRITES = FALSE;
         """

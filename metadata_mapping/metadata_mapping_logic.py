@@ -55,6 +55,21 @@ class MetadataMappingLogic:
             )
             .collect()[0]["combinations"]
         )
+    
+    def get_metadata_az_sf_catalog_integration(self) -> List[Row]:
+        return (
+            self.get_metadata_view()
+            .select(
+                collect_list(
+                    struct(
+                        "snowflake_catalog_integration",
+                        "uc_catalog_name",
+                        "uc_schema_name",
+                    )
+                ).alias("combinations")
+            )
+            .collect()[0]["combinations"]
+        )
 
     def refresh_metadata_table(self, catalog: Catalog):
         # Flatten the nested structure

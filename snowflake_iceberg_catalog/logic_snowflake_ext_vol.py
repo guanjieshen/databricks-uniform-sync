@@ -3,10 +3,6 @@ from snowflake_iceberg_catalog.repository_snowflake_ext_vol import (
     SnowflakeExternalVolumeRepository,
 )
 
-# Define a constant prefix for generated names
-AZURE_RESOURCE_PREFIX = "az_dbx_uc_"
-
-
 class SnowflakeExternalVolumeLogic:
     """
     This class encapsulates the logic for managing external volumes in Snowflake,
@@ -56,16 +52,16 @@ class SnowflakeExternalVolumeLogic:
             raise ValueError(
                 "external_location_name, external_location_storage_name, az_tenant_id, az_storage_account_name, and az_container_name are required."
             )
-
+        
+        ddl_query = self.snowflake_ext_vol_repo.generate_ddl_azure_ext_vol(
+            ext_vol_name=external_location_name,
+            storage_name=external_location_storage_name,
+            az_tenant_id=az_tenant_id,
+            az_storage_account_name=az_storage_account_name,
+            az_container_name=az_container_name,
+        )
+        
         if only_generate_sql:
-            ddl_query = self.snowflake_ext_vol_repo.generate_ddl_azure_ext_vol(
-                ext_vol_name=external_location_name,
-                storage_name=external_location_storage_name,
-                az_tenant_id=az_tenant_id,
-                az_storage_account_name=az_storage_account_name,
-                az_container_name=az_container_name,
-            )
-
             return ddl_query
 
         return None  # Explicitly return None if no SQL is generated
