@@ -35,7 +35,9 @@ class SnowflakeExternalVolumeLogic:
                 ),
                 storage_name=self.__az_generate_name(
                     "storage",
-                    az_tenant_id + az_storage_account_name + az_container_name,
+                    az_tenant_id,
+                    az_storage_account_name,
+                    az_container_name,
                 ),
                 az_tenant_id=az_tenant_id,
                 az_storage_account_name=az_storage_account_name,
