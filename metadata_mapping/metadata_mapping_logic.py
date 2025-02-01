@@ -2,10 +2,17 @@ from typing import List
 from pyspark.sql import SparkSession, DataFrame
 from data_models.data_models import Catalog
 from metadata_mapping.metadata_mapping_repository import MetadataMappingRepository
-from pyspark.sql.functions import xxhash64, lit, current_timestamp
+from pyspark.sql.functions import xxhash64, lit
 from pyspark.sql.functions import collect_list, struct
 from pyspark.sql import Row
-from pyspark.sql.functions import xxhash64, lit, abs as ps_abs
+from pyspark.sql.functions import (
+    xxhash64,
+    lit,
+    abs as ps_abs,
+    regexp_extract,
+    col,
+    concat,
+)
 
 
 class MetadataMappingLogic:
@@ -62,13 +69,35 @@ class MetadataMappingLogic:
         ]
 
         # Create Spark DataFrame
-        df_updates = (
+        df_updates: DataFrame = (
             self.spark_session.createDataFrame(rows)
             .withColumn(
                 "dbx_sf_uniform_metadata_id",
                 ps_abs(xxhash64("uc_catalog_id", "uc_schema_id", "uc_table_id")),
             )
-            .withColumn("last_sync_dated", lit(None))
+            .withColumn(
+                "az_storage_account",
+                regexp_extract(col("table_location"), r"@([^\.]+)", 1),
+            )
+            .withColumn(
+                "az_container_name",
+                regexp_extract(col("table_location"), r"abfss://([^@]+)", 1),
+            )
+            .withColumn(
+                "snowflake_external_volume",
+                concat(
+                    lit("az_dbx_uc_extvol_"),
+                    xxhash64("az_storage_account", "az_container_name"),
+                )
+                .withColumn(
+                    "snowflake_catalog_integration",
+                    concat(
+                        lit("az_dbx_uc_catint_"),
+                        xxhash64("uc_catalog_id", "uc_schema_id"),
+                    ),
+                )
+                .withColumn("last_sync_dated", lit(None)),
+            )
         )
 
         try:

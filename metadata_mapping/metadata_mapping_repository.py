@@ -26,14 +26,18 @@ class MetadataMappingRepository:
                         uc_table_name STRING,
                         table_location STRING,
                         table_type STRING,
+                        snowflake_external_volume STRING,
+                        snowflake_catalog_integration STRING,
                         last_sync_dated TIMESTAMP)
                         USING delta
                         COMMENT 'The`dbx_sf_uniform_metadata` table contains metadata information. 
 
-                        This table is managed by the `DatabricksToSnowflakeMirror` library.'
+                        This table is managed by the `DatabricksToSnowflakeMirror` library. Do not modify this table manually.'
                     """
             self.spark_session.sql(sqlQuery=sql_text)
-            logging.info(f"Metadata table `{self.catalog}`.`{self.schema}`.`{self.table}` confirmed.")
+            logging.info(
+                f"Metadata table `{self.catalog}`.`{self.schema}`.`{self.table}` confirmed."
+            )
         except Exception as e:
             print(f"Error creating metadata table: {e}")
 
@@ -41,14 +45,10 @@ class MetadataMappingRepository:
         try:
             sql_text = f"""
                         CREATE VIEW IF NOT EXISTS `{self.catalog}`.`{self.schema}`.`{self.table}_vw`
-                        COMMENT 'The `dbx_sf_uniform_metadata` table contains metadata information. This table is managed by the `DatabricksToSnowflakeMirror` library.' 
+                        COMMENT 'The `dbx_sf_uniform_metadata` table contains metadata information. This table is managed by the `DatabricksToSnowflakeMirror` library. Do not modify this view manually.' 
                         AS(
                         SELECT
                             a.*,
-                            REGEXP_EXTRACT(a.table_location, '@([^\\.]+)', 1) AS az_storage_account,
-                            REGEXP_EXTRACT(a.table_location, 'abfss://([^@]+)', 1) AS az_container_name,
-                            p.snowflake_external_volume,
-                            p.snowflake_catalog_integration,
                             p.snowflake_database,
                             p.snowflake_schema,
                             p.snowflake_table,
@@ -60,8 +60,6 @@ class MetadataMappingRepository:
                                 catalog_name,
                                 schema_name,
                                 table_name,
-                                MAX(CASE WHEN tag_name = 'snowflake_external_volume' THEN tag_value END) AS snowflake_external_volume,
-                                MAX(CASE WHEN tag_name = 'snowflake_catalog_integration' THEN tag_value END) AS snowflake_catalog_integration,
                                 MAX(CASE WHEN tag_name = 'snowflake_database' THEN tag_value END) AS snowflake_database,
                                 MAX(CASE WHEN tag_name = 'snowflake_schema' THEN tag_value END) AS snowflake_schema,
                                 MAX(CASE WHEN tag_name = 'snowflake_table' THEN tag_value END) AS snowflake_table,
@@ -80,7 +78,9 @@ class MetadataMappingRepository:
                         )
                     """
             self.spark_session.sql(sqlQuery=sql_text)
-            logging.info(f"Metadata view `{self.catalog}`.`{self.schema}`.`{self.table}_vw` confirmed.")
+            logging.info(
+                f"Metadata view `{self.catalog}`.`{self.schema}`.`{self.table}_vw` confirmed."
+            )
         except Exception as e:
             print(f"Error creating metadata table: {e}")
 
@@ -88,16 +88,17 @@ class MetadataMappingRepository:
         return self.spark_session.sql(
             f"SELECT * FROM `{self.catalog}`.`{self.schema}`.`{self.table}`"
         )
-    
+
     def get_metadata_view(self) -> DataFrame:
-            return self.spark_session.sql(
-                f"SELECT * FROM `{self.catalog}`.`{self.schema}`.`{self.table}_vw`"
-            )
+        return self.spark_session.sql(
+            f"SELECT * FROM `{self.catalog}`.`{self.schema}`.`{self.table}_vw`"
+        )
 
     def upsert_metadata_table(self, df_updates: DataFrame):
         metadata_table = DeltaTable.forName(
             self.spark_session, f"`{self.catalog}`.`{self.schema}`.`{self.table}`"
         )
+
         (
             metadata_table.alias("target")
             .merge(
@@ -110,7 +111,7 @@ class MetadataMappingRepository:
                     "uc_schema_name": "updates.uc_schema_name",
                     "uc_table_name": "updates.uc_table_name",
                     "table_location": "updates.table_location",
-                    "table_type": "updates.table_type"
+                    "table_type": "updates.table_type",
                 }
             )
             .whenNotMatchedInsertAll()

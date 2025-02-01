@@ -25,7 +25,6 @@ class SnowflakeExternalVolumeLogic:
     def __az_generate_name(
         self,
         resource_type: str,
-        az_tenant_id: str,
         az_storage_account_name: str,
         az_container_name: str,
     ) -> str:
@@ -34,12 +33,11 @@ class SnowflakeExternalVolumeLogic:
         in Snowflake by hashing key Azure parameters.
 
         :param resource_type: The type of resource (e.g., 'extvol' or 'storage').
-        :param az_tenant_id: The Azure tenant ID.
         :param az_storage_account_name: The name of the Azure storage account.
         :param az_container_name: The name of the Azure container.
         :return: A generated unique name for the Snowflake resource.
         """
-        unique_identifier = abs(hash(f"{az_tenant_id}_{az_storage_account_name}_{az_container_name}"))
+        unique_identifier = abs(hash(f"{az_storage_account_name}_{az_container_name}"))
         return f"{AZURE_RESOURCE_PREFIX}{resource_type}_{unique_identifier}"
 
     def az_create_external_volume(
@@ -66,10 +64,10 @@ class SnowflakeExternalVolumeLogic:
         if only_generate_sql:
             ddl_query = self.snowflake_ext_vol_repo.generate_ddl_azure_ext_vol(
                 ext_vol_name=self.__az_generate_name(
-                    "extvol", az_tenant_id, az_storage_account_name, az_container_name
+                    "extvol", az_storage_account_name, az_container_name
                 ),
                 storage_name=self.__az_generate_name(
-                    "storage", az_tenant_id, az_storage_account_name, az_container_name
+                    "storage",  az_storage_account_name, az_container_name
                 ),
                 az_tenant_id=az_tenant_id,
                 az_storage_account_name=az_storage_account_name,

@@ -1,4 +1,4 @@
-class SnowflakeExternalVolumeRepository:
+class SnowflakeCatalogIntegrationRepository:
     """
     A repository class for managing external volumes in Snowflake.
     """
@@ -31,37 +31,39 @@ class SnowflakeExternalVolumeRepository:
         # self.session: Session = Session.builder.configs(self.connection_parameters).create()
         # self.root: Root = Root(self.session)
 
-    def fetch_external_volumes():
+    def fetch_catalog_integrations():
         # TODO: Implement this method
         pass
 
-    def generate_ddl_azure_ext_vol(
+    def generate_ddl_catalog_integration(
         self,
-        ext_vol_name: str,
-        storage_name: str,
-        az_tenant_id: str,
-        az_storage_account_name: str,
-        az_container_name: str,
-    ) -> str:
-        """
-        Generates a SQL DDL statement to create an Azure-based external volume in Snowflake.
+        sf_integration_name:str,
+        uc_catalog_name: str,
+        uc_schema_name: str,
+        uc_endpoint: str,
+        oidc_endpoint: str,
+        oauth_client_id:str,
+        oauth_client_secret:str,
+        refresh_interval_seconds: int = 3600,
 
-        :param ext_vol_name: Name of the external volume
-        :param storage_name: Storage location name
-        :param az_tenant_id: Azure tenant ID
-        :param az_storage_account_name: Azure storage account name
-        :param az_container_name: Azure storage container name
-        :return: SQL statement string
-        """
+    ) -> str:
+
         return f"""
-        CREATE EXTERNAL VOLUME IF NOT EXISTS {ext_vol_name}
-            STORAGE_LOCATIONS = (
-                (
-                    NAME = '{storage_name}',
-                    STORAGE_PROVIDER = 'AZURE',
-                    STORAGE_BASE_URL = 'azure://{az_storage_account_name}.blob.core.windows.net/{az_container_name}',
-                    AZURE_TENANT_ID = '{az_tenant_id}'
-                )
+            CREATE CATALOG INTEGRATION {sf_integration_name} IF NOT EXISTS
+            CATALOG_SOURCE = ICEBERG_REST
+            TABLE_FORMAT = ICEBERG
+            CATALOG_NAMESPACE = '{uc_schema_name}'
+            REST_CONFIG = (
+                CATALOG_URI = '{uc_endpoint}',
+                WAREHOUSE = '{uc_catalog_name}'
             )
-            ALLOW_WRITES = FALSE;
+            REST_AUTHENTICATION = (
+                TYPE = OAUTH
+                OAUTH_TOKEN_URI = '{oidc_endpoint}'
+                OAUTH_CLIENT_ID = '{oauth_client_id}'
+                OAUTH_CLIENT_SECRET = '{oauth_client_secret}'
+                OAUTH_ALLOWED_SCOPES = ('all-apis', 'sql')
+            )
+            ENABLED = TRUE
+            REFRESH_INTERVAL_SECONDS = {refresh_interval_seconds};
         """
