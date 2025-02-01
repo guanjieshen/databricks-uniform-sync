@@ -112,6 +112,8 @@ class MetadataMappingRepository:
                     "uc_table_name": "updates.uc_table_name",
                     "table_location": "updates.table_location",
                     "table_type": "updates.table_type",
+                    "snowflake_external_volume": "updates.snowflake_external_volume",
+                    "snowflake_catalog_integration": "updates.snowflake_catalog_integration",
                 }
             )
             .whenNotMatchedInsertAll()
