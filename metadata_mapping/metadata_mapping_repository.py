@@ -25,6 +25,8 @@ class MetadataMappingRepository:
                         uc_table_id STRING,
                         uc_table_name STRING,
                         table_location STRING,
+                        az_storage_account STRING,
+                        az_container_name STRING,
                         table_type STRING,
                         snowflake_external_volume STRING,
                         snowflake_catalog_integration STRING,
@@ -114,6 +116,8 @@ class MetadataMappingRepository:
                     "table_type": "updates.table_type",
                     "snowflake_external_volume": "updates.snowflake_external_volume",
                     "snowflake_catalog_integration": "updates.snowflake_catalog_integration",
+                    "az_storage_account": "updates.az_storage_account",
+                    "az_container_name": "updates.az_container_name",
                 }
             )
             .whenNotMatchedInsertAll()

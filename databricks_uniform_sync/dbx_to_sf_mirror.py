@@ -77,6 +77,7 @@ class DatabricksToSnowflakeMirror:
         metadata_table: DataFrame = self.metadata_mapping_logic.get_metadata_view()
 
         # Convert metadata table to a list and filter out tables that already have metadata tags
+        # TODO: Move this into a helper class
         metadata_table_results = (
             metadata_table.filter(
                 (metadata_table.snowflake_database.isNull())
