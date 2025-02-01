@@ -91,14 +91,14 @@ class MetadataMappingLogic:
                 "snowflake_external_volume",
                 concat(
                     lit("az_dbx_uc_extvol_"),
-                    xxhash64(col("az_storage_account"), col("az_container_name")),
+                    ps_abs(xxhash64(col("az_storage_account"), col("az_container_name"))),
                 ),
             )
             .withColumn(
                 "snowflake_catalog_integration",
                 concat(
                     lit("az_dbx_uc_catint_"),
-                    xxhash64(col("uc_catalog_id"), col("uc_schema_id")),
+                    ps_abs(xxhash64(col("uc_catalog_id"), col("uc_schema_id"))),
                 ),
             )
             .withColumn("last_sync_dated", lit(None))
