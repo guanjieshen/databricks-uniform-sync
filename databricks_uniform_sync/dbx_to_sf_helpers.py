@@ -7,7 +7,7 @@ from snowflake_iceberg_catalog.logic_snowflake_ext_vol import (
 )
 from metadata_mapping.metadata_mapping_logic import MetadataMappingLogic
 from pyspark.sql import SparkSession, DataFrame
-from data_models.data_models import AzureStorageDetails
+from data_models.data_models import SnowflakeExtVolDTO
 from pyspark.sql import Row
 
 class DatabricksToSnowflakeHelpers:
@@ -53,7 +53,7 @@ class DatabricksToSnowflakeHelpers:
             >>> helper.fetch_uc_storage_locations("tenant123")
             [AzureStorageDetails(account_name="storage1", container_name="container1", tenant_id="tenant123")]
         """
-        metadata_view_df: List[Row] = self.metadata_mapping_logic.get_metadata_az_storage()
+        metadata_view_df: List[Row] = self.metadata_mapping_logic.get_metadata_az_sf_external_volume()
 
         # Extract required fields and convert to a list of AzureStorageDetails objects
         return self._convert_df_to_storage_details(metadata_view_df, tenant_id)
@@ -61,9 +61,9 @@ class DatabricksToSnowflakeHelpers:
     @staticmethod
     def _convert_df_to_storage_details(
         metadata_df: List[Row], tenant_id: str
-    ) -> List[AzureStorageDetails]:
+    ) -> List[SnowflakeExtVolDTO]:
         """
-        Converts a Spark DataFrame containing Azure storage metadata into a list of AzureStorageDetails.
+        Converts a Spark DataFrame containing Azure storage metadata into a list of SnowflakeExtVolDTO.
 
         Args:
             metadata_df (DataFrame): The DataFrame containing metadata.
@@ -73,7 +73,8 @@ class DatabricksToSnowflakeHelpers:
             List[AzureStorageDetails]: A list of storage account details.
         """
         return [
-            AzureStorageDetails(
+            SnowflakeExtVolDTO(
+                external_volume_name=row["snowflake_external_volume"],
                 account_name=row["az_storage_account"],
                 container_name=row["az_container_name"],
                 tenant_id=tenant_id,
@@ -82,7 +83,7 @@ class DatabricksToSnowflakeHelpers:
         ]
 
     def create_sf_external_volume_ddls(
-        self, storage_details_list: List[AzureStorageDetails]
+        self, SnowflakeExtVolDTOs: List[SnowflakeExtVolDTO]
     ) -> List[str]:
         """
         Generates Snowflake External Volume DDLs based on Azure storage details.
@@ -101,9 +102,11 @@ class DatabricksToSnowflakeHelpers:
         return [
             self.sf_ext_vol_logic.az_create_external_volume(
                 only_generate_sql=True,
-                az_tenant_id=storage_details.tenant_id,
-                az_storage_account_name=storage_details.account_name,
-                az_container_name=storage_details.container_name,
+                external_location_name=item.external_volume_name,
+                external_location_storage_name=item.external_volume_storage_name,
+                az_tenant_id=item.tenant_id,
+                az_storage_account_name=item.account_name,
+                az_container_name=item.container_name,
             )
-            for storage_details in storage_details_list
+            for item in SnowflakeExtVolDTOs
         ]

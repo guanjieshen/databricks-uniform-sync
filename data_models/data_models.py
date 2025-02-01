@@ -50,7 +50,9 @@ class UnityCatalogIcebergSchema(BaseModel):
     next_page_token: Optional[str] = Field(None, alias="next-page-token")
 
 
-class AzureStorageDetails(BaseModel):
+class SnowflakeExtVolDTO(BaseModel):
+    external_volume_name: str
+    external_volume_storage_name: str
     account_name: str
     container_name: str
     tenant_id: str

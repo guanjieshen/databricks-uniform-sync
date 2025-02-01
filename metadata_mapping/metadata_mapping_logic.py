@@ -40,13 +40,18 @@ class MetadataMappingLogic:
     def get_metadata_view(self) -> DataFrame:
         return self.metadata_mapping_repository.get_metadata_view()
 
-    def get_metadata_az_storage(self) -> List[Row]:
+    def get_metadata_az_sf_external_volume(self) -> List[Row]:
         return (
             self.get_metadata_view()
             .select(
-                collect_list(struct("az_storage_account", "az_container_name")).alias(
-                    "combinations"
-                )
+                collect_list(
+                    struct(
+                        "snowflake_external_volume",
+                        "snowflake_external_volume_storage",
+                        "az_storage_account",
+                        "az_container_name",
+                    )
+                ).alias("combinations")
             )
             .collect()[0]["combinations"]
         )
@@ -91,7 +96,18 @@ class MetadataMappingLogic:
                 "snowflake_external_volume",
                 concat(
                     lit("az_dbx_uc_extvol_"),
-                    ps_abs(xxhash64(col("az_storage_account"), col("az_container_name"))),
+                    ps_abs(
+                        xxhash64(col("az_storage_account"), col("az_container_name"))
+                    ),
+                ),
+            )
+            .withColumn(
+                "snowflake_external_volume_storage",
+                concat(
+                    lit("az_dbx_uc_storage_"),
+                    ps_abs(
+                        xxhash64(col("az_storage_account"), col("az_container_name"))
+                    ),
                 ),
             )
             .withColumn(

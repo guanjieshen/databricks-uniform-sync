@@ -115,20 +115,8 @@ class DatabricksToSnowflakeMirror:
                 storage_locations
             )
 
-        else:
-            pass
-
     def sf_create_catalog_integrations(
         self, refresh_interval: int = 120, workspace_url=None, dry_run: bool = False
     ):
-        workspace_url: str = workspace_url or self.dbx_workspace_url
-        # TODO: This code should be moved into the logic class.
-        # catalog_url: str = f"{workspace_url}/api/2.1/unity-catalog/iceberg"
-
-        # Get the metadata table
-
-        # Create catalog integrations.
         pass
 
-    def sync_catalogs(dry_run: bool = False):
-        pass
