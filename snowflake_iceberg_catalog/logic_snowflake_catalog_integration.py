@@ -24,7 +24,7 @@ class SnowflakeCatalogIntegrationLogic:
         refresh_interval_seconds: int = 3600,
     ) -> Optional[str]:
 
-        oidc_endpoint = f"{uc_endpoint}/oidc/v1/token"
+        oidc_endpoint = f"{uc_endpoint}oidc/v1/token"
 
         ddl_query = self.snowflake_cat_int_repo.generate_ddl_catalog_integration(
             sf_integration_name=sf_integration_name,

@@ -24,18 +24,20 @@ class UnityCatalogRepository:
         # Extract the ID from the catalog storage location
         # Regular expression to extract the UUID (36 characters)
         uuid_pattern = r"([a-f0-9-]{36})"
+        try:
+            # Find all matches of the pattern in the URL
+            matches = re.findall(uuid_pattern, catalog.storage_location)
 
-        # Find all matches of the pattern in the URL
-        matches = re.findall(uuid_pattern, catalog.storage_location)
+            # Print the first match if it exists
+            if matches:
+                catalog_id = matches[0]
+                catalog.id = catalog_id
+            else:
+                catalog_id = "No valid UUID found"
 
-        # Print the first match if it exists
-        if matches:
-            catalog_id = matches[0]
-            catalog.id = catalog_id
-        else:
-            catalog_id = "No valid UUID found"
-
-        return catalog
+            return catalog
+        except Exception as e:
+            print(f"Error extracting catalog ID: {catalog}")
 
     def get_schema(self, catalog_name: str, schema_name: str) -> SchemaInfo:
         schema: SchemaInfo = self.workspace_client.schemas.get(
