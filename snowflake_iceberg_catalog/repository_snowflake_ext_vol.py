@@ -33,7 +33,7 @@ class SnowflakeExternalVolumeRepository:
         self, ext_vol_name:str, storage_name:str, az_tenant_id:str, az_storage_account_name:str, az_container_name:str
     ):
         return f""" 
-CREATE EXTERNAL VOLUME {ext_vol_name}
+CREATE EXTERNAL VOLUME {ext_vol_name} IF NOT EXISTS
     STORAGE_LOCATIONS =
         (
             (
