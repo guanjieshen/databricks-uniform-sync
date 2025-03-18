@@ -7,7 +7,7 @@ from snowflake_iceberg_catalog.logic_snowflake_catalog_integration import (
 )
 from metadata_mapping.metadata_mapping_logic import MetadataMappingLogic
 from pyspark.sql import SparkSession
-from data_models.data_models import SnowflakeExtVolDTO, SnowflakeCatIntlDTO
+from data_models.data_models import SnowflakeCatIntlDTO
 from pyspark.sql import Row
 
 
@@ -45,27 +45,6 @@ class DatabricksToSnowflakeHelpers:
             SnowflakeCatalogIntegrationRepository()
         )
 
-    def fetch_uc_storage_locations(self, tenant_id: str) -> List[SnowflakeExtVolDTO]:
-        """
-        Fetches Azure storage locations from the metadata catalog.
-
-        Args:
-            tenant_id (str): The Azure tenant ID.
-
-        Returns:
-            List[SnowflakeExtVolDTO]: A list of storage account and container details.
-
-        Example:
-            >>> helper.fetch_uc_storage_locations("tenant123")
-            [SnowflakeExtVolDTO(account_name="storage1", container_name="container1", tenant_id="tenant123")]
-        """
-        metadata_view_df: List[Row] = (
-            self.metadata_mapping_logic.get_metadata_az_sf_external_volume()
-        )
-
-        # Extract required fields and convert to a list of AzureStorageDetails objects
-        return self._convert_df_to_ext_vol_dto(metadata_view_df, tenant_id)
-
     def fetch_uc_catalog_integration(
         self,
         uc_endpoint: str,
@@ -91,30 +70,6 @@ class DatabricksToSnowflakeHelpers:
         ]
         pass
 
-    @staticmethod
-    def _convert_df_to_ext_vol_dto(
-        metadata_df: List[Row], tenant_id: str
-    ) -> List[SnowflakeExtVolDTO]:
-        """
-        Converts a Spark DataFrame containing Snowfla storage metadata into a list of SnowflakeExtVolDTO.
-
-        Args:
-            metadata_df (DataFrame): The DataFrame containing metadata.
-            tenant_id (str): The Azure tenant ID.
-
-        Returns:
-            List[AzureStorageDetails]: A list of storage account details.
-        """
-        return [
-            SnowflakeExtVolDTO(
-                external_volume_name=row["snowflake_external_volume"],
-                external_volume_storage_name=row["snowflake_external_volume_storage"],
-                account_name=row["az_storage_account"],
-                container_name=row["az_container_name"],
-                tenant_id=tenant_id,
-            )
-            for row in metadata_df
-        ]
 
     def create_sf_cat_int_ddls(
         self, sf_cat_int_dtos: List[SnowflakeCatIntlDTO]
