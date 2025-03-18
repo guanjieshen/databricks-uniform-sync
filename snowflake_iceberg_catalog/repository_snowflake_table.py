@@ -33,12 +33,12 @@ class SnowflakeTableRepository:
             self.root = None
 
     def generate_ddl_iceberg_table(
-        sf_database_name: str,
-        sf_schema_name: str,
-        sf_table_name: str,
-        sf_catalog_integration_name: str,
-        db_table_name: str,
-        auto_refresh: str,
+        sf_database_name=None,
+        sf_schema_name=None,
+        sf_table_name=None,
+        sf_catalog_integration_name=None,
+        db_table_name=None,
+        auto_refresh=None
     ):
         return f"""CREATE OR REPLACE ICEBERG TABLE {sf_database_name}.{sf_schema_name}.{sf_table_name}
                     CATALOG = '{sf_catalog_integration_name}'
