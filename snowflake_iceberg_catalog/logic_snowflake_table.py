@@ -3,8 +3,6 @@ from snowflake_iceberg_catalog.repository_snowflake_table import (
     SnowflakeTableRepository,
 )
 from concurrent.futures import ThreadPoolExecutor
-from data_models.data_models import SnowflakeIcebergTableDTO
-
 
 class SnowflakeTableLogic:
     def __init__(self, snowflake_table_repository: SnowflakeTableRepository):

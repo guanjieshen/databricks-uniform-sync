@@ -113,15 +113,18 @@ class DatabricksToSnowflakeHelpers:
     def create_sf_table_ddls(
         self, sf_table_dtos: List[SnowflakeIcebergTableDTO],
     ) -> List[str]:
-        return [
-            self.sf_table_logic.create_iceberg_table(
-                only_generate_sql=True,
-                sf_catalog_integration_name=item.catalog_integration_name,
-                sf_database_name=item.snowflake_database,
-                sf_schema_name=item.snowflake_schema,
-                sf_table_name=item.snowflake_table,
-                db_table_name=item.uc_table_name,
-                auto_refresh=item.auto_refresh,
-            )
-            for item in sf_table_dtos
-        ]
+         
+         for item in sf_table_dtos:
+              print(item)
+        # return [
+        #     self.sf_table_logic.create_iceberg_table(
+        #         only_generate_sql=True,
+        #         sf_catalog_integration_name=item.catalog_integration_name,
+        #         sf_database_name=item.snowflake_database,
+        #         sf_schema_name=item.snowflake_schema,
+        #         sf_table_name=item.snowflake_table,
+        #         db_table_name=item.uc_table_name,
+        #         auto_refresh=item.auto_refresh,
+        #     )
+        #     for item in sf_table_dtos
+        # ]
