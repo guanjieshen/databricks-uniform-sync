@@ -22,7 +22,7 @@ class SnowflakeTableLogic:
         only_generate_sql: bool = True,
     ):
         ddl_query = self.snowflake_table_repository.generate_ddl_iceberg_table(
-            sf_database_name="test",
+            sf_database_name=sf_database_name,
             sf_schema_name=sf_schema_name,
             sf_table_name=sf_table_name,
             sf_catalog_integration_name=sf_catalog_integration_name,
