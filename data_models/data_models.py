@@ -73,17 +73,6 @@ class UnityCatalogIcebergSchema(BaseModel):
         None, alias="next-page-token"
     )  # Token for fetching the next page of namespaces, if available.
 
-class SnowflakeExtVolDTO(BaseModel):
-    """
-    Data Transfer Object (DTO) for Snowflake external volume configuration.
-    """
-    external_volume_name: str          # Name of the external volume.
-    external_volume_storage_name: str  # Storage name associated with the external volume.
-    account_name: str                  # Account name related to the external volume.
-    container_name: str                # Container name used in the external volume.
-    tenant_id: str                     # Identifier for the tenant.
-
-
 class SnowflakeCatIntlDTO(BaseModel):
     """
     Data Transfer Object (DTO) for Snowflake catalog integrations.

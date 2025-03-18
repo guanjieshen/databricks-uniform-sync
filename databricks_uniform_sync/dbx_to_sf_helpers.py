@@ -1,10 +1,4 @@
 from typing import List
-from snowflake_iceberg_catalog.repository_snowflake_ext_vol import (
-    SnowflakeExternalVolumeRepository,
-)
-from snowflake_iceberg_catalog.logic_snowflake_ext_vol import (
-    SnowflakeExternalVolumeLogic,
-)
 from snowflake_iceberg_catalog.repository_snowflake_catalog_integration import (
     SnowflakeCatalogIntegrationRepository,
 )
@@ -46,9 +40,6 @@ class DatabricksToSnowflakeHelpers:
             catalog=metadata_catalog,
             schema=metadata_schema,
             table=metadata_table,
-        )
-        self.sf_ext_vol_logic = SnowflakeExternalVolumeLogic(
-            SnowflakeExternalVolumeRepository()
         )
         self.sf_cat_int_logic = SnowflakeCatalogIntegrationLogic(
             SnowflakeCatalogIntegrationRepository()
@@ -123,21 +114,6 @@ class DatabricksToSnowflakeHelpers:
                 tenant_id=tenant_id,
             )
             for row in metadata_df
-        ]
-
-    def create_sf_external_volume_ddls(
-        self, snowflakeExtVolDTOs: List[SnowflakeExtVolDTO]
-    ) -> List[str]:
-        return [
-            self.sf_ext_vol_logic.az_create_external_volume(
-                only_generate_sql=True,
-                external_location_name=item.external_volume_name,
-                external_location_storage_name=item.external_volume_storage_name,
-                az_tenant_id=item.tenant_id,
-                az_storage_account_name=item.account_name,
-                az_container_name=item.container_name,
-            )
-            for item in snowflakeExtVolDTOs
         ]
 
     def create_sf_cat_int_ddls(

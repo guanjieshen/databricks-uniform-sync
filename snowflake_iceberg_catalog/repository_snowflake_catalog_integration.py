@@ -56,6 +56,7 @@ CATALOG_NAMESPACE = '{uc_schema_name}'
 REST_CONFIG = (
     CATALOG_URI = '{uc_endpoint}',
     WAREHOUSE = '{uc_catalog_name}'
+    ACCESS_DELEGATION_MODE = VENDED_CREDENTIALS
 )
 REST_AUTHENTICATION = (
     TYPE = OAUTH

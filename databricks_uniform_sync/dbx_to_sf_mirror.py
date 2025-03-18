@@ -3,7 +3,6 @@ from databricks_unity_catalog.logic_uc_mapping import UCMappingLogic
 from databricks_unity_catalog.logic_uc_tags import UCTagsLogic
 from data_models.data_models import (
     Catalog,
-    SnowflakeExtVolDTO,
     SnowflakeIcebergTableConfig,
 )
 from metadata_mapping.metadata_mapping_logic import MetadataMappingLogic
@@ -109,19 +108,6 @@ class DatabricksToSnowflakeMirror:
             except Exception as e:
                 print(f"Error adding tags to table: {e}")
 
-    def sf_create_external_volumes(
-        self, generate_sql_only: bool = True, azure_tenant_id: str = None
-    ):
-        if generate_sql_only:
-            external_locations: List[SnowflakeExtVolDTO] = (
-                self.dbx_to_sf_helpers.fetch_uc_storage_locations(
-                    tenant_id=azure_tenant_id
-                )
-            )
-            return self.dbx_to_sf_helpers.create_sf_external_volume_ddls(
-                external_locations
-            )
-
     def sf_create_catalog_integrations(
         self,
         oauth_client_id: str,
@@ -137,8 +123,6 @@ class DatabricksToSnowflakeMirror:
                 oauth_client_secret=oauth_client_secret,
             )
         )
-        return self.dbx_to_sf_helpers.create_sf_cat_int_ddls(
-            catalog_integrations
-        )
+        return self.dbx_to_sf_helpers.create_sf_cat_int_ddls(catalog_integrations)
         # Get uc metadata for catalog integrations.
         pass

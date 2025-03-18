@@ -34,7 +34,6 @@ class SnowflakeTableRepository:
         sf_database_name: str,
         sf_schema_name: str,
         sf_table_name: str,
-        sf_external_volume: str,
         sf_catalog_integration_name: str,
         db_table_name: str,
     ):
@@ -46,7 +45,6 @@ class SnowflakeTableRepository:
             cursor = self.connection.cursor()
             result = cursor.execute(
                 f"""CREATE OR REPLACE ICEBERG TABLE {sf_database_name}.{sf_schema_name}.{sf_table_name}
-                    EXTERNAL_VOLUME = '{sf_external_volume}'
                     CATALOG = '{sf_catalog_integration_name}'
                     CATALOG_TABLE_NAME = '{db_table_name}';"""
             )

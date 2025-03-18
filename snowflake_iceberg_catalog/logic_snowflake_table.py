@@ -17,7 +17,6 @@ class SnowflakeTableLogic:
             sf_database_name=table_config.sf_database_name,
             sf_schema_name=table_config.sf_schema_name,
             sf_table_name=table_config.sf_table_name,
-            sf_external_volume=table_config.sf_external_volume,
             sf_catalog_integration_name=table_config.sf_catalog_integration_name,
             db_table_name=table_config.db_table_name,
         )
