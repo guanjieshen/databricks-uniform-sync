@@ -91,7 +91,7 @@ class SnowflakeIcebergTableDTO(BaseModel):
     """
     catalog_integration_name: str          # Name of the external volume.
     uc_table_name: str  # Storage name associated with the external volume.
-    snowflake_database: int                     # Identifier for the tenant.
+    snowflake_database: str                     # Identifier for the tenant.
     snowflake_schema: str                # Container name used in the external volume.
     snowflake_table: str                     # Identifier for the tenant.
     auto_refresh: bool                     # Should the table automatically refresh
