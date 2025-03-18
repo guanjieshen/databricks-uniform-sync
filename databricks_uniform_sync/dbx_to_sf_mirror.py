@@ -126,3 +126,11 @@ class DatabricksToSnowflakeMirror:
         return self.dbx_to_sf_helpers.create_sf_cat_int_ddls(catalog_integrations)
         # Get uc metadata for catalog integrations.
         pass
+
+
+    def sf_create_tables(
+        self
+    ):
+        # G
+
+        pass

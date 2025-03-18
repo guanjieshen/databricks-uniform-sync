@@ -14,12 +14,24 @@ from pyspark.sql.functions import (
     concat,
 )
 
-
 class MetadataMappingLogic:
+    """
+    Logic class for handling metadata mapping between Azure and Snowflake.
+    This class provides methods to create, refresh, and query metadata tables.
+    """
 
     def __init__(
         self, spark_session: SparkSession, catalog: str, schema: str, table: str
     ):
+        """
+        Initialize MetadataMappingLogic.
+
+        Args:
+            spark_session (SparkSession): Spark session object.
+            catalog (str): Catalog name.
+            schema (str): Schema name.
+            table (str): Table name.
+        """
         self.metadata_mapping_repository: MetadataMappingRepository = (
             MetadataMappingRepository(
                 spark_session=spark_session, catalog=catalog, schema=schema, table=table
@@ -28,6 +40,10 @@ class MetadataMappingLogic:
         self.spark_session = spark_session
 
     def create_metadata_tables(self):
+        """
+        Create metadata table and joined view in the repository.
+        Catches any exception and logs it.
+        """
         try:
             self.metadata_mapping_repository.create_metadata_table()
             self.metadata_mapping_repository.create_metadata_joined_view()
@@ -35,14 +51,40 @@ class MetadataMappingLogic:
             print(f"Error creating metadata table: {e}")
 
     def get_metadata_table(self) -> DataFrame:
+        """
+        Get the metadata table from the repository.
+
+        Returns:
+            DataFrame: Metadata table as a Spark DataFrame.
+        """
         return self.metadata_mapping_repository.get_metadata_table()
 
     def get_metadata_view(self) -> DataFrame:
+        """
+        Get the metadata view from the repository.
+
+        Returns:
+            DataFrame: Metadata view as a Spark DataFrame.
+        """
         return self.metadata_mapping_repository.get_metadata_view()
-    
+
     def get_metadata_az_sf_catalog_integration(self) -> List[Row]:
+        """
+        Get a list of catalog and schema combinations where the values are not null.
+
+        Filters:
+            - snowflake_catalog_integration, uc_catalog_name, and uc_schema_name should not be null.
+
+        Returns:
+            List[Row]: A list of unique catalog and schema combinations.
+        """
         return (
             self.get_metadata_view()
+            .filter(
+                col("snowflake_catalog_integration").isNotNull()
+                & col("uc_catalog_name").isNotNull()
+                & col("uc_schema_name").isNotNull()
+            )
             .select(
                 collect_list(
                     struct(
@@ -52,12 +94,54 @@ class MetadataMappingLogic:
                     )
                 ).alias("combinations")
             )
-            #TODO: this need to be distinct
+            .distinct()  # Ensure distinct combinations
+            .collect()[0]["combinations"]
+        )
+
+    def get_metadata_az_tables(self) -> List[Row]:
+        """
+        Get a list of table combinations where the metadata is valid.
+
+        Filters:
+            - snowflake_uniform_sync must be True.
+            - None of the required fields should be null.
+
+        Returns:
+            List[Row]: A list of unique table combinations.
+        """
+        return (
+            self.get_metadata_view()
+            .filter(
+                (col("snowflake_uniform_sync") == True)
+                & col("snowflake_catalog_integration").isNotNull()
+                & col("uc_table_name").isNotNull()
+                & col("snowflake_database").isNotNull()
+                & col("snowflake_schema").isNotNull()
+                & col("snowflake_table").isNotNull()
+            )
+            .select(
+                collect_list(
+                    struct(
+                        "snowflake_catalog_integration",
+                        "uc_table_name",
+                        "snowflake_database",
+                        "snowflake_schema",
+                        "snowflake_table",
+                    )
+                ).alias("combinations")
+            )
+            .distinct()  # Ensure distinct combinations
             .collect()[0]["combinations"]
         )
 
     def refresh_metadata_table(self, catalog: Catalog):
-        # Flatten the nested structure
+        """
+        Refresh the metadata table by flattening and updating with new data.
+
+        Args:
+            catalog (Catalog): Catalog object containing schema and table details.
+        """
+        # Flatten the nested structure of the catalog object into rows
         rows = [
             {
                 "uc_catalog_id": catalog.uc_id,
@@ -73,11 +157,12 @@ class MetadataMappingLogic:
             for table in schema.tables
         ]
 
-        # Create Spark DataFrame
+        # Create Spark DataFrame from the flattened rows
         df_updates: DataFrame = (
             self.spark_session.createDataFrame(rows)
-            # Only Include Managed Tables - Credential Vending only supports Managed
+            # Only include managed tables since credential vending supports only managed tables
             .filter(col("table_type") == "MANAGED")
+            # Generate a unique hash for identifying records
             .withColumn(
                 "dbx_sf_uniform_metadata_id",
                 ps_abs(
@@ -86,14 +171,17 @@ class MetadataMappingLogic:
                     )
                 ),
             )
+            # Extract storage account from table location using regex
             .withColumn(
                 "az_storage_account",
                 regexp_extract(col("table_location"), r"@([^\.]+)", 1),
             )
+            # Extract container name from table location using regex
             .withColumn(
                 "az_container_name",
                 regexp_extract(col("table_location"), r"abfss://([^@]+)", 1),
             )
+            # Create a Snowflake catalog integration string based on hash values
             .withColumn(
                 "snowflake_catalog_integration",
                 concat(
@@ -101,10 +189,12 @@ class MetadataMappingLogic:
                     ps_abs(xxhash64(col("uc_catalog_id"), col("uc_schema_id"))),
                 ),
             )
+            # Add a column for the last sync date (initially set to None)
             .withColumn("last_sync_dated", lit(None))
         )
 
         try:
+            # Upsert the metadata table with the new DataFrame
             self.metadata_mapping_repository.upsert_metadata_table(df_updates)
         except Exception as e:
             print(f"Error updating metadata table: {e}")
