@@ -12,22 +12,25 @@ class SnowflakeTableRepository:
         self.account_id = account_id
         self.username = username
         self.password = password
-
-        # Define the connection parameters
-        connection_parameters = {
-            "account": account_id,
-            "user": username,
-            "password": password,
-        }
-        # Create a connection to Snowflake for SQL
-        self.connection = snow.connect(
-            account=connection_parameters["account"],
-            user=connection_parameters["user"],
-            password=connection_parameters["password"],
-        )
-        # Create a session to Snowflake for Snowpark
-        session: Session = Session.builder.configs(connection_parameters).create()
-        self.root: Root = Root(session)
+        if all([self.account_id, self.username, self.password]):
+            # Define the connection parameters
+            connection_parameters = {
+                "account": account_id,
+                "user": username,
+                "password": password,
+            }
+            # Create a connection to Snowflake for SQL
+            self.connection = snow.connect(
+                account=connection_parameters["account"],
+                user=connection_parameters["user"],
+                password=connection_parameters["password"],
+            )
+            # Create a session to Snowflake for Snowpark
+            session: Session = Session.builder.configs(connection_parameters).create()
+            self.root: Root = Root(session)
+        else:
+            self.connection = None
+            self.root = None
 
     def generate_ddl_iceberg_table(
         sf_database_name: str,
