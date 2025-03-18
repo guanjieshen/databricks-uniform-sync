@@ -76,6 +76,8 @@ class MetadataMappingLogic:
         # Create Spark DataFrame
         df_updates: DataFrame = (
             self.spark_session.createDataFrame(rows)
+            # Only Include Managed Tables - Credential Vending only supports Managed
+            .filter(col("table_type") == "MANAGED")
             .withColumn(
                 "dbx_sf_uniform_metadata_id",
                 ps_abs(
