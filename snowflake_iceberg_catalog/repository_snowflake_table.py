@@ -29,6 +29,19 @@ class SnowflakeTableRepository:
         session: Session = Session.builder.configs(connection_parameters).create()
         self.root: Root = Root(session)
 
+    def generate_ddl_iceberg_table(
+        sf_database_name: str,
+        sf_schema_name: str,
+        sf_table_name: str,
+        sf_catalog_integration_name: str,
+        db_table_name: str,
+        auto_refresh: str,
+    ):
+        return f"""CREATE OR REPLACE ICEBERG TABLE {sf_database_name}.{sf_schema_name}.{sf_table_name}
+                    CATALOG = '{sf_catalog_integration_name}'
+                    CATALOG_TABLE_NAME = '{db_table_name}'
+                    AUTO_REFRESH = {auto_refresh};"""
+
     def create_iceberg_table(
         self,
         sf_database_name: str,

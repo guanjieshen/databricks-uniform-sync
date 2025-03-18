@@ -3,7 +3,8 @@ from databricks_unity_catalog.logic_uc_mapping import UCMappingLogic
 from databricks_unity_catalog.logic_uc_tags import UCTagsLogic
 from data_models.data_models import (
     Catalog,
-    SnowflakeIcebergTableConfig,
+    SnowflakeCatIntlDTO,
+    SnowflakeIcebergTableDTO
 )
 from metadata_mapping.metadata_mapping_logic import MetadataMappingLogic
 from pyspark.sql import SparkSession, DataFrame
@@ -115,7 +116,7 @@ class DatabricksToSnowflakeMirror:
         generate_sql_only: bool = True,
         refresh_interval_seconds: str = 3600,
     ):
-        catalog_integrations: List[SnowflakeIcebergTableConfig] = (
+        catalog_integrations: List[SnowflakeCatIntlDTO] = (
             self.dbx_to_sf_helpers.fetch_uc_catalog_integration(
                 uc_endpoint=self.dbx_workspace_url,
                 refresh_interval_seconds=refresh_interval_seconds,
@@ -124,15 +125,12 @@ class DatabricksToSnowflakeMirror:
             )
         )
         return self.dbx_to_sf_helpers.create_sf_cat_int_ddls(catalog_integrations)
-        # Get uc metadata for catalog integrations.
-        pass
 
 
     def sf_create_tables(
-        self
+        self, auto_refresh: bool = True
     ):
-        tables = self.metadata_mapping_logic.get_metadata_az_tables()
-        print(tables)
-        # G
+        tables:List[SnowflakeIcebergTableDTO] = self.dbx_to_sf_helpers.fetch_uc_tables(auto_refresh=auto_refresh)
+        return self.dbx_to_sf_helpers.create_sf_table_ddls(tables)
 
-        pass
+   

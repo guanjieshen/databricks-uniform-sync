@@ -1,4 +1,5 @@
 from typing import List
+from snowflake_iceberg_catalog.logic_snowflake_table import SnowflakeTableLogic
 from snowflake_iceberg_catalog.repository_snowflake_catalog_integration import (
     SnowflakeCatalogIntegrationRepository,
 )
@@ -7,8 +8,10 @@ from snowflake_iceberg_catalog.logic_snowflake_catalog_integration import (
 )
 from metadata_mapping.metadata_mapping_logic import MetadataMappingLogic
 from pyspark.sql import SparkSession
-from data_models.data_models import SnowflakeCatIntlDTO
+from data_models.data_models import SnowflakeCatIntlDTO, SnowflakeIcebergTableDTO
 from pyspark.sql import Row
+
+from snowflake_iceberg_catalog.repository_snowflake_table import SnowflakeTableRepository
 
 
 class DatabricksToSnowflakeHelpers:
@@ -44,6 +47,7 @@ class DatabricksToSnowflakeHelpers:
         self.sf_cat_int_logic = SnowflakeCatalogIntegrationLogic(
             SnowflakeCatalogIntegrationRepository()
         )
+        self.sf_table_logic= SnowflakeTableLogic(SnowflakeTableRepository())
 
     def fetch_uc_catalog_integration(
         self,
@@ -68,8 +72,26 @@ class DatabricksToSnowflakeHelpers:
             )
             for row in metadata_view_df
         ]
-        pass
 
+    def fetch_uc_tables(
+            self,
+            auto_refresh: bool,
+        ) -> List[SnowflakeIcebergTableDTO]:
+
+            metadata_view_df: List[Row] = (
+                self.metadata_mapping_logic.get_metadata_az_tables()
+            )
+            return [
+                SnowflakeIcebergTableDTO(
+                    catalog_integration_name=row["snowflake_catalog_integration"],
+                    uc_table_name=row["uc_table_name"],
+                    snowflake_database=row["snowflake_database"],
+                    snowflake_schema=row["snowflake_schema"],
+                    snowflake_database=row["snowflake_table"],
+                    auto_refresh=auto_refresh,
+                )
+                for row in metadata_view_df
+            ]
 
     def create_sf_cat_int_ddls(
         self, sf_cat_int_dtos: List[SnowflakeCatIntlDTO]
@@ -86,4 +108,20 @@ class DatabricksToSnowflakeHelpers:
                 refresh_interval_seconds=item.refresh_interval_seconds,
             )
             for item in sf_cat_int_dtos
+        ]
+
+    def create_sf_table_ddls(
+        self, sf_table_dtos: List[SnowflakeIcebergTableDTO],
+    ) -> List[str]:
+        return [
+            self.sf_table_logic.create_iceberg_table(
+                only_generate_sql=True,
+                sf_integration_name=item.catalog_integration_name,
+                sf_database_name=item.snowflake_database,
+                sf_schema_name=item.snowflake_schema,
+                sf_table_name=item.snowflake_table,
+                db_table_name=item.uc_table_name,
+                auto_refresh=item.auto_refresh,
+            )
+            for item in sf_table_dtos
         ]

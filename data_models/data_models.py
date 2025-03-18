@@ -94,3 +94,4 @@ class SnowflakeIcebergTableDTO(BaseModel):
     snowflake_database: int                     # Identifier for the tenant.
     snowflake_schema: str                # Container name used in the external volume.
     snowflake_table: str                     # Identifier for the tenant.
+    auto_refresh: bool                     # Should the table automatically refresh
