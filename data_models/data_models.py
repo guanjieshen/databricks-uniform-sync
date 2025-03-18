@@ -84,3 +84,13 @@ class SnowflakeCatIntlDTO(BaseModel):
     refresh_interval_seconds: int                     # Identifier for the tenant.
     oauth_client_id: str                # Container name used in the external volume.
     oauth_client_secret: str                     # Identifier for the tenant.
+
+class SnowflakeIcebergTableDTO(BaseModel):
+    """
+    Data Transfer Object (DTO) for Snowflake Iceberg table.
+    """
+    catalog_integration_name: str          # Name of the external volume.
+    uc_table_name: str  # Storage name associated with the external volume.
+    snowflake_database: int                     # Identifier for the tenant.
+    snowflake_schema: str                # Container name used in the external volume.
+    snowflake_table: str                     # Identifier for the tenant.

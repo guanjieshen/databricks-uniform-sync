@@ -131,6 +131,8 @@ class DatabricksToSnowflakeMirror:
     def sf_create_tables(
         self
     ):
+        tables = self.metadata_mapping_logic.get_metadata_az_tables()
+        print(tables)
         # G
 
         pass
