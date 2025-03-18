@@ -8,7 +8,7 @@ from snowflake.core.table import Table, TableResource
 
 
 class SnowflakeTableRepository:
-    def __init__(self, account_id: str, username: str = None, password: str = None):
+    def __init__(self, account_id: str=None, username: str = None, password: str = None):
         self.account_id = account_id
         self.username = username
         self.password = password
