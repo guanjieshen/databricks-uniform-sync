@@ -87,7 +87,7 @@ class DatabricksToSnowflakeHelpers:
                     uc_table_name=row["uc_table_name"],
                     snowflake_database=row["snowflake_database"],
                     snowflake_schema=row["snowflake_schema"],
-                    snowflake_database=row["snowflake_table"],
+                    snowflake_table=row["snowflake_table"],
                     auto_refresh=auto_refresh,
                 )
                 for row in metadata_view_df
