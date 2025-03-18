@@ -99,7 +99,7 @@ class DatabricksToSnowflakeHelpers:
         return [
             self.sf_cat_int_logic.create_catalog_integration(
                 only_generate_sql=True,
-                catalog_integration_name=item.catalog_integration_name,
+                sf_catalog_integration_name=item.catalog_integration_name,
                 uc_catalog_name=item.uc_catalog_name,
                 uc_schema_name=item.uc_schema_name,
                 uc_endpoint=item.uc_endpoint,
