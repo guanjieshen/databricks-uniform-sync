@@ -116,7 +116,7 @@ class DatabricksToSnowflakeHelpers:
         return [
             self.sf_table_logic.create_iceberg_table(
                 only_generate_sql=True,
-                sf_integration_name=item.catalog_integration_name,
+                sf_catalog_integration_name=item.catalog_integration_name,
                 sf_database_name=item.snowflake_database,
                 sf_schema_name=item.snowflake_schema,
                 sf_table_name=item.snowflake_table,

@@ -15,7 +15,7 @@ class SnowflakeCatalogIntegrationLogic:
     def create_catalog_integration(
         self,
         only_generate_sql: bool = True,
-        sf_integration_name: str = None,
+        sf_catalog_integration_name: str = None,
         uc_catalog_name: str = None,
         uc_schema_name: str = None,
         uc_endpoint: str = None,
@@ -27,7 +27,7 @@ class SnowflakeCatalogIntegrationLogic:
         oidc_endpoint = f"{uc_endpoint}oidc/v1/token"
 
         ddl_query = self.snowflake_cat_int_repo.generate_ddl_catalog_integration(
-            sf_integration_name=sf_integration_name,
+            sf_catalog_integration_name=sf_catalog_integration_name,
             uc_catalog_name=uc_catalog_name,
             uc_schema_name=uc_schema_name,
             uc_endpoint=uc_endpoint,

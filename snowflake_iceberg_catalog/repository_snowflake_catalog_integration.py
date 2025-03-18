@@ -37,7 +37,7 @@ class SnowflakeCatalogIntegrationRepository:
 
     def generate_ddl_catalog_integration(
         self,
-        sf_integration_name:str,
+        sf_catalog_integration_name:str,
         uc_catalog_name: str,
         uc_schema_name: str,
         uc_endpoint: str,
@@ -49,7 +49,7 @@ class SnowflakeCatalogIntegrationRepository:
     ) -> str:
 
         return f"""
-CREATE CATALOG INTEGRATION {sf_integration_name} IF NOT EXISTS
+CREATE CATALOG INTEGRATION {sf_catalog_integration_name} IF NOT EXISTS
 CATALOG_SOURCE = ICEBERG_REST
 TABLE_FORMAT = ICEBERG
 CATALOG_NAMESPACE = '{uc_schema_name}'
