@@ -99,12 +99,10 @@ REFRESH_INTERVAL_SECONDS = {refresh_interval_seconds};
         )
 
         try:
+            logger.info(f"Creating Catalog Integration: '{sf_catalog_integration_name}'")
             snowflake_repository.run_query(ddl)
-            logger.info(f"'{sf_catalog_integration_name}' created successfully.")
+
         except ProgrammingError as e:
-            if "already exists" in str(e):
-                logger.warning(f"Catalog integration '{sf_catalog_integration_name}' already exists. Skipping creation.")
-            else:
                 logger.error(f"SQL compilation error: {e}")
         except Exception as e:
             logger.exception(f"Error executing DDL: {e}")
