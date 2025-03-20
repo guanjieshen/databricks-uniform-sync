@@ -42,10 +42,10 @@ class SnowflakeTableRepository:
         auto_refresh
     ):
         return f"""
-                    CREATE OR REPLACE ICEBERG TABLE {sf_database_name}.{sf_schema_name}.{sf_table_name}
-                    CATALOG = '{sf_catalog_integration_name}'
-                    CATALOG_TABLE_NAME = '{db_table_name}'
-                    AUTO_REFRESH = {auto_refresh};
+CREATE OR REPLACE ICEBERG TABLE {sf_database_name}.{sf_schema_name}.{sf_table_name}
+CATALOG = '{sf_catalog_integration_name}'
+CATALOG_TABLE_NAME = '{db_table_name}'
+AUTO_REFRESH = {auto_refresh};
                 """
 
     def create_iceberg_table(

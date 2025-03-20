@@ -32,6 +32,9 @@ class SnowflakeTableLogic:
         if only_generate_sql:
             return ddl_query
 
+
+
+
     # def create_iceberg_tables_in_parallel(
     #     self, table_configs: List[SnowflakeIcebergTableConfig]
     # ):
