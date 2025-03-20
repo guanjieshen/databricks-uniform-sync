@@ -12,7 +12,7 @@ from config.logging_config import setup_logging
 # Initialize logging
 setup_logging()
 import logging
-logger = logging.getLogger(__name__)
+logger = logging.getLogger('dbx_to_sf_mirror')
 
 class DatabricksToSnowflakeMirror:
     """

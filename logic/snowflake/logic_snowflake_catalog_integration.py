@@ -7,13 +7,16 @@ from config.logging_config import setup_logging
 # Initialize logging
 setup_logging()
 import logging
-logger = logging.getLogger(__name__)
+
+logger = logging.getLogger("dbx_to_sf_mirror")
+
 
 class SnowflakeCatalogIntegrationLogic:
 
     def __init__(self):
-        
-        pass 
+
+        pass
+
     def generate_ddl_catalog_integration(
         self,
         sf_catalog_integration_name: str,
@@ -37,7 +40,7 @@ class SnowflakeCatalogIntegrationLogic:
         :param refresh_interval_seconds: Frequency (in seconds) for refreshing OAuth tokens.
         :return: A formatted DDL statement as a string.
         """
-        oidc_endpoint:str = f"{uc_endpoint}oidc/v1/token"
+        oidc_endpoint: str = f"{uc_endpoint}oidc/v1/token"
         return f"""
 CREATE CATALOG INTEGRATION {sf_catalog_integration_name} 
 CATALOG_SOURCE = ICEBERG_REST
@@ -94,10 +97,12 @@ REFRESH_INTERVAL_SECONDS = {refresh_interval_seconds};
         )
 
         try:
-            logger.info(f"Creating Catalog Integration: '{sf_catalog_integration_name}'")
+            logger.info(
+                f"Creating Catalog Integration: '{sf_catalog_integration_name}'"
+            )
             snowflake_repository.run_query(ddl)
 
         except ProgrammingError as e:
-                logger.error(f"SQL compilation error: {e}")
+            logger.error(f"SQL compilation error: {e}")
         except Exception as e:
             logger.exception(f"Error executing DDL: {e}")
