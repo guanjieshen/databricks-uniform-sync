@@ -58,6 +58,7 @@ class DatabricksToSnowflakeHelpers:
         metadata_view_df: List[Row] = (
             self.metadata_mapping_logic.get_metadata_az_sf_catalog_integration()
         )
+        print(metadata_view_df)
         return [
             SnowflakeCatIntlDTO(
                 catalog_integration_name=row["snowflake_catalog_integration"],
