@@ -1,108 +1,97 @@
 from typing import Optional
-from repository.snowflake.repository_snowflake import SnowflakeRepository
-from snowflake.connector import ProgrammingError
+from repository.snowflake.repository_snowflake import SnowflakeRepository  # Custom repository for Snowflake operations
+from snowflake.connector import ProgrammingError  # Exception handling for Snowflake errors
 import logging
-from config.logging_config import setup_logging
+from config.logging_config import setup_logging  # Import logging setup configuration
 
-# Initialize logging
+# Initialize logging using the configured settings
 setup_logging()
-import logging
 
+# Create a logger for this module
 logger = logging.getLogger("dbx_to_sf_mirror")
 
-
+# Define a class to handle Snowflake catalog integration logic
 class SnowflakeCatalogIntegrationLogic:
-
     def __init__(self):
-
+        # Constructor – no initialization required at the moment
         pass
 
-    def generate_ddl_catalog_integration(
+    # Method to generate a DDL (Data Definition Language) statement for creating a catalog integration
+    def generate_ddl(
         self,
-        sf_catalog_integration_name: str,
-        uc_catalog_name: str,
-        uc_schema_name: str,
-        uc_endpoint: str,
-        oauth_client_id: str,
-        oauth_client_secret: str,
-        refresh_interval_seconds: int = 3600,
+        integration_name: str,  # Name of the catalog integration in Snowflake
+        catalog_name: str,  # Unity Catalog name
+        schema_name: str,  # Schema name under the Unity Catalog
+        endpoint: str,  # Endpoint for the Unity Catalog
+        client_id: str,  # OAuth client ID for authentication
+        client_secret: str,  # OAuth client secret for authentication
+        refresh_interval: int = 3600,  # Token refresh interval in seconds (default: 1 hour)
     ) -> str:
-        """
-        Generates a DDL statement for creating or modifying a Snowflake catalog integration.
+        # Construct the OIDC endpoint based on the provided endpoint
+        oidc_endpoint = f"{endpoint}oidc/v1/token"
 
-        :param sf_catalog_integration_name: Name of the catalog integration in Snowflake.
-        :param uc_catalog_name: Name of the Unity Catalog in Snowflake.
-        :param uc_schema_name: Schema name under the Unity Catalog.
-        :param uc_endpoint: Endpoint for the Unity Catalog.
-        :param oidc_endpoint: OIDC endpoint for authentication.
-        :param oauth_client_id: OAuth client ID for the catalog integration.
-        :param oauth_client_secret: OAuth client secret for the catalog integration.
-        :param refresh_interval_seconds: Frequency (in seconds) for refreshing OAuth tokens.
-        :return: A formatted DDL statement as a string.
-        """
-        oidc_endpoint: str = f"{uc_endpoint}oidc/v1/token"
+        # Return a formatted DDL statement for creating a catalog integration
         return f"""
-CREATE CATALOG INTEGRATION {sf_catalog_integration_name} 
-CATALOG_SOURCE = ICEBERG_REST
-TABLE_FORMAT = ICEBERG
-CATALOG_NAMESPACE = '{uc_schema_name}'
-REST_CONFIG = (
-    CATALOG_URI = '{uc_endpoint}/oidc/v1/token',
-    WAREHOUSE = '{uc_catalog_name}',
-    ACCESS_DELEGATION_MODE = VENDED_CREDENTIALS
-)
-REST_AUTHENTICATION = (
-    TYPE = OAUTH,
-    OAUTH_TOKEN_URI = '{oidc_endpoint}',
-    OAUTH_CLIENT_ID = '{oauth_client_id}',
-    OAUTH_CLIENT_SECRET = '{oauth_client_secret}',
-    OAUTH_ALLOWED_SCOPES = ('all-apis', 'sql')
-)
-ENABLED = TRUE
-REFRESH_INTERVAL_SECONDS = {refresh_interval_seconds};
+        CREATE CATALOG INTEGRATION {integration_name} 
+        CATALOG_SOURCE = ICEBERG_REST
+        TABLE_FORMAT = ICEBERG
+        CATALOG_NAMESPACE = '{schema_name}'
+        REST_CONFIG = (
+            CATALOG_URI = '{endpoint}/oidc/v1/token',
+            WAREHOUSE = '{catalog_name}',
+            ACCESS_DELEGATION_MODE = VENDED_CREDENTIALS
+        )
+        REST_AUTHENTICATION = (
+            TYPE = OAUTH,
+            OAUTH_TOKEN_URI = '{oidc_endpoint}',
+            OAUTH_CLIENT_ID = '{client_id}',
+            OAUTH_CLIENT_SECRET = '{client_secret}',
+            OAUTH_ALLOWED_SCOPES = ('all-apis', 'sql')
+        )
+        ENABLED = TRUE
+        REFRESH_INTERVAL_SECONDS = {refresh_interval};
         """
 
+    # Method to create a catalog integration in Snowflake using the generated DDL statement
     def create_catalog_integration(
         self,
-        snowflake_repository: SnowflakeRepository,
-        sf_catalog_integration_name: str,
-        uc_catalog_name: str,
-        uc_schema_name: str,
-        uc_endpoint: str,
-        oauth_client_id: str,
-        oauth_client_secret: str,
-        refresh_interval_seconds: int = 3600,
+        repository: SnowflakeRepository,  # Instance of SnowflakeRepository to execute queries
+        integration_name: str,  # Name of the catalog integration in Snowflake
+        catalog_name: str,  # Unity Catalog name
+        schema_name: str,  # Schema name under the Unity Catalog
+        endpoint: str,  # Endpoint for the Unity Catalog
+        client_id: str,  # OAuth client ID for authentication
+        client_secret: str,  # OAuth client secret for authentication
+        refresh_interval: int = 3600,  # Token refresh interval in seconds (default: 1 hour)
     ) -> Optional[str]:
-        """
-        Creates a Snowflake catalog integration.
-
-        :param sf_catalog_integration_name: Name of the catalog integration in Snowflake.
-        :param uc_catalog_name: Name of the Unity Catalog in Snowflake.
-        :param uc_schema_name: Schema name under the Unity Catalog.
-        :param uc_endpoint: Endpoint for the Unity Catalog.
-        :param oidc_endpoint: OIDC endpoint for authentication.
-        :param oauth_client_id: OAuth client ID for the catalog integration.
-        :param oauth_client_secret: OAuth client secret for the catalog integration.
-        :param refresh_interval_seconds: Frequency (in seconds) for refreshing OAuth tokens.
-        :return: None if successful, error message if failed.
-        """
-        ddl = self.generate_ddl_catalog_integration(
-            sf_catalog_integration_name,
-            uc_catalog_name,
-            uc_schema_name,
-            uc_endpoint,
-            oauth_client_id,
-            oauth_client_secret,
-            refresh_interval_seconds,
+        # Generate the DDL statement using the provided parameters
+        ddl = self.generate_ddl(
+            integration_name,
+            catalog_name,
+            schema_name,
+            endpoint,
+            client_id,
+            client_secret,
+            refresh_interval,
         )
 
         try:
-            logger.info(
-                f"Creating Catalog Integration: '{sf_catalog_integration_name}'"
-            )
-            snowflake_repository.run_query(ddl)
+            # Log the creation attempt for tracking and debugging
+            logger.info(f"Creating Catalog Integration: '{integration_name}'")
+
+            # Execute the DDL statement using the Snowflake repository
+            repository.run_query(ddl)
+
+            # Log successful creation
+            logger.info(f"Catalog Integration '{integration_name}' created successfully.")
 
         except ProgrammingError as e:
-            logger.error(f"SQL compilation error: {e}")
+            # Handle SQL compilation errors specific to Snowflake
+            logger.error(f"SQL error creating catalog '{integration_name}': {e}")
+            return str(e)
         except Exception as e:
-            logger.exception(f"Error executing DDL: {e}")
+            # Handle any other unexpected exceptions
+            logger.exception(f"Error executing DDL for catalog '{integration_name}': {e}")
+            return str(e)
+
+        return None

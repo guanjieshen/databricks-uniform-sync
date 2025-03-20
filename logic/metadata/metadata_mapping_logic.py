@@ -14,6 +14,7 @@ from pyspark.sql.functions import (
     concat,
 )
 
+
 class MetadataMappingLogic:
     """
     Logic class for handling metadata mapping between Azure and Snowflake.
@@ -81,14 +82,14 @@ class MetadataMappingLogic:
         return (
             self.get_metadata_view()
             .filter(
-                col("snowflake_catalog_integration").isNotNull() &
-                col("uc_catalog_name").isNotNull() &
-                col("uc_schema_name").isNotNull()
+                col("snowflake_catalog_integration").isNotNull()
+                & col("uc_catalog_name").isNotNull()
+                & col("uc_schema_name").isNotNull()
             )
             .select(
                 col("snowflake_catalog_integration"),
                 col("uc_catalog_name"),
-                col("uc_schema_name")
+                col("uc_schema_name"),
             )
             .distinct()  # Ensure distinct rows BEFORE aggregation
             .select(
@@ -96,7 +97,7 @@ class MetadataMappingLogic:
                     struct(
                         "snowflake_catalog_integration",
                         "uc_catalog_name",
-                        "uc_schema_name"
+                        "uc_schema_name",
                     )
                 ).alias("combinations")
             )
@@ -124,6 +125,7 @@ class MetadataMappingLogic:
                 & col("snowflake_schema").isNotNull()
                 & col("snowflake_table").isNotNull()
             )
+            .distinct()  # Ensure distinct combinations
             .select(
                 collect_list(
                     struct(
@@ -135,7 +137,6 @@ class MetadataMappingLogic:
                     )
                 ).alias("combinations")
             )
-            .distinct()  # Ensure distinct combinations
             .collect()[0]["combinations"]
         )
 
