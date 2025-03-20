@@ -96,7 +96,6 @@ class DatabricksToSnowflakeHelpers:
     ) -> List[str]:
         return [
             self.sf_cat_int_logic.generate_ddl_catalog_integration(
-                only_generate_sql=True,
                 sf_catalog_integration_name=item.catalog_integration_name,
                 uc_catalog_name=item.uc_catalog_name,
                 uc_schema_name=item.uc_schema_name,
