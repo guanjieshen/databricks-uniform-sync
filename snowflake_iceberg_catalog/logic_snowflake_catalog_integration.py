@@ -103,6 +103,6 @@ REFRESH_INTERVAL_SECONDS = {refresh_interval_seconds};
             snowflake_repository.run_query(ddl)
 
         except ProgrammingError as e:
-                logger.error(f"SQL compilation error: {e}")
+                logger.error(f"SQL compilation error1213: {e}")
         except Exception as e:
             logger.exception(f"Error executing DDL: {e}")
