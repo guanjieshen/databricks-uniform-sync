@@ -118,9 +118,7 @@ class DatabricksToSnowflakeHelpers:
         Returns:
             List[SnowflakeIcebergTableDTO]: List of table DTOs.
         """
-        metadata_rows: List[Row] = (
-            self.metadata_mapping_logic.get_metadata_az_tables()
-        )
+        metadata_rows: List[Row] = self.metadata_mapping_logic.get_metadata_az_tables()
         return [
             SnowflakeIcebergTableDTO(
                 catalog_integration_name=row["snowflake_catalog_integration"],
@@ -182,8 +180,7 @@ class DatabricksToSnowflakeHelpers:
 
         for item in sf_cat_int_dtos:
             self.catalog_integration_logic.create_catalog_integration(
-                repository,
-                **vars(item)  # Unpacks DTO attributes into arguments
+                repository, **vars(item)  # Unpacks DTO attributes into arguments
             )
 
     def create_sf_table_ddls(
@@ -200,7 +197,14 @@ class DatabricksToSnowflakeHelpers:
             List[str]: List of generated DDL statements.
         """
         return [
-            self.table_logic.generate_ddl(**vars(item))
+            self.table_logic.generate_ddl(
+                sf_database_name=item.snowflake_database,
+                sf_schema_name=item.snowflake_schema,
+                sf_table_name=item.snowflake_table,
+                sf_catalog_integration_name=item.catalog_integration_name,
+                db_table_name=item.uc_table_name,
+                auto_refresh=item.auto_refresh,
+            )
             for item in sf_table_dtos
         ]
 

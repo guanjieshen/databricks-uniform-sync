@@ -134,7 +134,7 @@ class DatabricksToSnowflakeMirror:
                     f"Failed to add tags to {record.uc_catalog_name}.{record.uc_schema_name}.{record.uc_table_name}: {e}"
                 )
 
-    def generate_sf_create_catalog_integrations_sql(
+    def generate_create_sf_catalog_integrations_sql(
         self,
         oauth_client_id: str,
         oauth_client_secret: str,
@@ -203,9 +203,9 @@ class DatabricksToSnowflakeMirror:
             sf_private_key_file_pwd,
             catalog_integrations,
         )
-        logger.info("Catalog integrations created.")
+        logger.info("All Catalog Integrations created...")
 
-    def generate_sf_create_tables_sql(self, auto_refresh: bool = True) -> List[str]:
+    def generate_create_sf_iceberg_tables_sql(self, auto_refresh: bool = True) -> List[str]:
         """
         Generate SQL for creating Snowflake tables.
 
