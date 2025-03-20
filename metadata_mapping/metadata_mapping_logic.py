@@ -81,20 +81,25 @@ class MetadataMappingLogic:
         return (
             self.get_metadata_view()
             .filter(
-                col("snowflake_catalog_integration").isNotNull()
-                & col("uc_catalog_name").isNotNull()
-                & col("uc_schema_name").isNotNull()
+                col("snowflake_catalog_integration").isNotNull() &
+                col("uc_catalog_name").isNotNull() &
+                col("uc_schema_name").isNotNull()
             )
+            .select(
+                col("snowflake_catalog_integration"),
+                col("uc_catalog_name"),
+                col("uc_schema_name")
+            )
+            .distinct()  # Ensure distinct rows BEFORE aggregation
             .select(
                 collect_list(
                     struct(
                         "snowflake_catalog_integration",
                         "uc_catalog_name",
-                        "uc_schema_name",
+                        "uc_schema_name"
                     )
                 ).alias("combinations")
             )
-            .dropDuplicates()  # Ensure distinct combinations
             .collect()[0]["combinations"]
         )
 
