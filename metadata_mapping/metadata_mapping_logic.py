@@ -94,7 +94,7 @@ class MetadataMappingLogic:
                     )
                 ).alias("combinations")
             )
-            .distinct()  # Ensure distinct combinations
+            .dropDuplicates()  # Ensure distinct combinations
             .collect()[0]["combinations"]
         )
 
