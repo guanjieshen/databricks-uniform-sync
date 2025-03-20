@@ -44,9 +44,7 @@ class DatabricksToSnowflakeHelpers:
             schema=metadata_schema,
             table=metadata_table,
         )
-        self.sf_cat_int_logic = SnowflakeCatalogIntegrationLogic(
-            SnowflakeCatalogIntegrationLogic(SnowflakeRepository)
-        )
+        self.sf_cat_int_logic = SnowflakeCatalogIntegrationLogic()
         self.sf_table_logic = SnowflakeTableLogic(SnowflakeTableRepository())
 
     def fetch_uc_catalog_integration(
