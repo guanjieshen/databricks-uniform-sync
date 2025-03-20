@@ -47,7 +47,7 @@ class MetadataMappingLogic:
         """
         try:
             self.metadata_mapping_repository.create_metadata_table()
-            self.metadata_mapping_repository.create_metadata_joined_view()
+            # self.metadata_mapping_repository.create_metadata_joined_view()
         except Exception as e:
             print(f"Error creating metadata table: {e}")
 
