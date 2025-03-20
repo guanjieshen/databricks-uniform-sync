@@ -1,4 +1,4 @@
-from databricks_unity_catalog.repository_unity_catalog import UnityCatalogRepository
+from repository.databricks.repository_unity_catalog import UnityCatalogRepository
 from pyspark.sql import SparkSession
 
 
