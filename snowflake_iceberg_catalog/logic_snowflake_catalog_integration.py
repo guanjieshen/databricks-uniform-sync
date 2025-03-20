@@ -1,6 +1,15 @@
 from typing import Optional
 from snowflake_iceberg_catalog.repository_snowflake import SnowflakeRepository
 from snowflake.connector import ProgrammingError
+import logging
+
+# Configure logger
+logging.basicConfig(
+    level=logging.INFO,  # Set log level
+    format="%(asctime)s - %(levelname)s - %(message)s"  # Define log format
+)
+
+logger = logging.getLogger(__name__)
 
 class SnowflakeCatalogIntegrationLogic:
 
@@ -88,10 +97,11 @@ REFRESH_INTERVAL_SECONDS = {refresh_interval_seconds};
 
         try:
             snowflake_repository.run_query(ddl)
+            logger.info(f"'{sf_catalog_integration_name}' created successfully.")
         except ProgrammingError as e:
             if "already exists" in str(e):
-                print(f"Catalog integration '{sf_catalog_integration_name}' already exists. Skipping creation.")
+                logger.warning(f"Catalog integration '{sf_catalog_integration_name}' already exists. Skipping creation.")
             else:
-                print(f"SQL compilation error: {e}")
+                logger.error(f"SQL compilation error: {e}")
         except Exception as e:
-            print(f"Error executing DDL: {e}")
+            logger.exception(f"Error executing DDL: {e}")
