@@ -19,7 +19,7 @@ class SnowflakeTableLogic:
         pass
 
     # Method to generate a DDL (Data Definition Language) statement for creating an Iceberg table
-    def generate_ddl_iceberg_table(
+    def generate_ddl(
         self,
         sf_database_name: str,  # Snowflake database name
         sf_schema_name: str,  # Snowflake schema name
@@ -48,7 +48,7 @@ AUTO_REFRESH = {"TRUE" if auto_refresh else "FALSE"};
         auto_refresh: bool,  # Whether to enable auto-refresh of the table
     ):
         # Generate the DDL statement using the provided parameters
-        ddl = self.generate_ddl_iceberg_table(
+        ddl = self.generate_ddl(
             sf_database_name=sf_database_name,
             sf_schema_name=sf_schema_name,
             sf_table_name=sf_table_name,

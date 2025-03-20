@@ -146,7 +146,7 @@ class DatabricksToSnowflakeHelpers:
             List[str]: List of generated DDL statements.
         """
         return [
-            self.catalog_integration_logic.generate_ddl_catalog_integration(
+            self.catalog_integration_logic.generate_ddl(
                 sf_catalog_integration_name=item.catalog_integration_name,
                 uc_catalog_name=item.uc_catalog_name,
                 uc_schema_name=item.uc_schema_name,
@@ -200,7 +200,7 @@ class DatabricksToSnowflakeHelpers:
             List[str]: List of generated DDL statements.
         """
         return [
-            self.table_logic.generate_ddl_iceberg_table(**vars(item))
+            self.table_logic.generate_ddl(**vars(item))
             for item in sf_table_dtos
         ]
 
