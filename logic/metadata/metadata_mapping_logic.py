@@ -13,7 +13,14 @@ from pyspark.sql.functions import (
     col,
     concat,
 )
+import logging
+from config.logging_config import setup_logging  # Import logging setup configuration
 
+# Initialize logging using the configured settings
+setup_logging()
+
+# Create a logger for this module
+logger = logging.getLogger("dbx_to_sf_mirror")
 
 class MetadataMappingLogic:
     """
@@ -47,9 +54,9 @@ class MetadataMappingLogic:
         """
         try:
             self.metadata_mapping_repository.create_metadata_table()
-            # self.metadata_mapping_repository.create_metadata_joined_view()
+            self.metadata_mapping_repository.create_metadata_joined_view()
         except Exception as e:
-            print(f"Error creating metadata table: {e}")
+            logger.error(f"Error creating metadata table: {e}")
 
     def get_metadata_table(self) -> DataFrame:
         """
@@ -203,4 +210,4 @@ class MetadataMappingLogic:
             # Upsert the metadata table with the new DataFrame
             self.metadata_mapping_repository.upsert_metadata_table(df_updates)
         except Exception as e:
-            print(f"Error updating metadata table: {e}")
+            logger.error(f"Error updating metadata table: {e}")
