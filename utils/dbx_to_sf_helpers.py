@@ -147,7 +147,7 @@ class DatabricksToSnowflakeHelpers:
         """
         return [
             self.catalog_integration_logic.generate_ddl(
-                sf_catalog_integration_name=item.catalog_integration_name,
+                integration_name=item.catalog_integration_name,
                 uc_catalog_name=item.uc_catalog_name,
                 uc_schema_name=item.uc_schema_name,
                 uc_endpoint=item.uc_endpoint,
