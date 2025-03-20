@@ -28,7 +28,7 @@ class SnowflakeCatalogIntegrationLogic:
         refresh_interval_seconds: int = 3600,  # Token refresh interval in seconds (default: 1 hour)
     ) -> str:
         # Construct the OIDC endpoint based on the provided endpoint
-        oidc_endpoint = f"{uc_endpoint}oidc/v1/token"
+        oidc_endpoint = f"{uc_endpoint}/oidc/v1/token"
 
         # Return a formatted DDL statement for creating a catalog integration
         return f"""
@@ -37,7 +37,7 @@ class SnowflakeCatalogIntegrationLogic:
         TABLE_FORMAT = ICEBERG
         CATALOG_NAMESPACE = '{uc_schema_name}'
         REST_CONFIG = (
-            CATALOG_URI = '{uc_endpoint}/oidc/v1/token',
+            CATALOG_URI = '{uc_endpoint}/api/2.1/unity-catalog/iceberg',
             WAREHOUSE = '{uc_catalog_name}',
             ACCESS_DELEGATION_MODE = VENDED_CREDENTIALS
         )
