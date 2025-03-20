@@ -1,15 +1,15 @@
 from typing import List
-from snowflake_iceberg_catalog.repository_snowflake_table import (
+from repository.snowflake.repository_snowflake_table import (
     SnowflakeTableRepository,
 )
 from concurrent.futures import ThreadPoolExecutor
+
 
 class SnowflakeTableLogic:
     def __init__(self, snowflake_table_repository: SnowflakeTableRepository):
         self.snowflake_table_repository: SnowflakeTableRepository = (
             snowflake_table_repository
         )
-
 
     def create_iceberg_table(
         self,
@@ -27,13 +27,10 @@ class SnowflakeTableLogic:
             sf_table_name=sf_table_name,
             sf_catalog_integration_name=sf_catalog_integration_name,
             db_table_name=db_table_name,
-            auto_refresh="TRUE" if auto_refresh else "FALSE"
+            auto_refresh="TRUE" if auto_refresh else "FALSE",
         )
         if only_generate_sql:
             return ddl_query
-
-
-
 
     # def create_iceberg_tables_in_parallel(
     #     self, table_configs: List[SnowflakeIcebergTableConfig]

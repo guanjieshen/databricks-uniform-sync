@@ -1,17 +1,17 @@
 from typing import List
-from snowflake_iceberg_catalog.logic_snowflake_table import SnowflakeTableLogic
-from snowflake_iceberg_catalog.repository_snowflake import SnowflakeRepository
-from snowflake_iceberg_catalog.logic_snowflake_catalog_integration import (
+from logic.snowflake.logic_snowflake_table import SnowflakeTableLogic
+from repository.snowflake.repository_snowflake import SnowflakeRepository
+
+from repository.snowflake.repository_snowflake_table import (
+    SnowflakeTableRepository,
+)
+from logic.snowflake.logic_snowflake_catalog_integration import (
     SnowflakeCatalogIntegrationLogic,
 )
-from metadata_mapping.metadata_mapping_logic import MetadataMappingLogic
+from logic.metadata.metadata_mapping_logic import MetadataMappingLogic
 from pyspark.sql import SparkSession
 from data_models.data_models import SnowflakeCatIntlDTO, SnowflakeIcebergTableDTO
 from pyspark.sql import Row
-
-from snowflake_iceberg_catalog.repository_snowflake_table import (
-    SnowflakeTableRepository,
-)
 
 
 class DatabricksToSnowflakeHelpers:
@@ -115,8 +115,8 @@ class DatabricksToSnowflakeHelpers:
         sf_private_key_file_pwd: str,
         sf_cat_int_dtos: List[SnowflakeCatIntlDTO],
     ) -> None:
-        
-        snowflake_repository:SnowflakeRepository = SnowflakeRepository(
+
+        snowflake_repository: SnowflakeRepository = SnowflakeRepository(
             account_id=sf_account_id,
             user=sf_user,
             private_key_file=sf_private_key_file,

@@ -1,4 +1,4 @@
-from snowflake_iceberg_catalog.repository_snowflake_database import SnowflakeDatabaseRepository
+from repository.snowflake.repository_snowflake_database import SnowflakeDatabaseRepository
 
 
 class SnowflakeDatabaseLogic:

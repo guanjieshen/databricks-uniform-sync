@@ -1,4 +1,4 @@
-from snowflake_iceberg_catalog.repository_snowflake_schema import (
+from repository.snowflake.repository_snowflake_schema import (
     SnowflakeSchemaRepository,
 )
 

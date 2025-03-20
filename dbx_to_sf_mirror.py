@@ -1,21 +1,18 @@
 from typing import List, Optional
-from databricks_unity_catalog.logic_uc_mapping import UCMappingLogic
-from databricks_unity_catalog.logic_uc_tags import UCTagsLogic
+from logic.databricks.logic_uc_mapping import UCMappingLogic
+from logic.databricks.logic_uc_tags import UCTagsLogic
 from data_models.data_models import (
-    Catalog,
     SnowflakeCatIntlDTO,
-    SnowflakeIcebergTableDTO,
 )
-from metadata_mapping.metadata_mapping_logic import MetadataMappingLogic
-from pyspark.sql import SparkSession, DataFrame
-from databricks_uniform_sync.dbx_to_sf_helpers import DatabricksToSnowflakeHelpers
+from logic.metadata.metadata_mapping_logic import MetadataMappingLogic
+from pyspark.sql import SparkSession
+from utils.dbx_to_sf_helpers import DatabricksToSnowflakeHelpers
+from config.logging_config import setup_logging
+
+# Initialize logging
+setup_logging()
 import logging
-
-# Configure logging to output timestamps and log levels
-logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
-)
-
+logger = logging.getLogger(__name__)
 
 class DatabricksToSnowflakeMirror:
     """
@@ -164,11 +161,13 @@ class DatabricksToSnowflakeMirror:
         logging.info("Generating SQL for creating Snowflake catalog integrations...")
 
         # Fetch catalog integration details from Databricks
-        catalog_integrations:List[SnowflakeCatIntlDTO] = self.dbx_to_sf_helpers.fetch_uc_catalog_integration(
-            uc_endpoint=self.dbx_workspace_url,
-            refresh_interval_seconds=refresh_interval_seconds,
-            oauth_client_id=oauth_client_id,
-            oauth_client_secret=oauth_client_secret,
+        catalog_integrations: List[SnowflakeCatIntlDTO] = (
+            self.dbx_to_sf_helpers.fetch_uc_catalog_integration(
+                uc_endpoint=self.dbx_workspace_url,
+                refresh_interval_seconds=refresh_interval_seconds,
+                oauth_client_id=oauth_client_id,
+                oauth_client_secret=oauth_client_secret,
+            )
         )
 
         # Generate SQL for catalog integration creation
@@ -190,21 +189,25 @@ class DatabricksToSnowflakeMirror:
     ):
         logging.info("Creating Snowflake catalog integrations...")
 
+        # TODO: Test the connection to the IRC using the credentials provided.
+
         # Fetch catalog integration details from Databricks
-        catalog_integrations:List[SnowflakeCatIntlDTO] = self.dbx_to_sf_helpers.fetch_uc_catalog_integration(
-            uc_endpoint=self.dbx_workspace_url,
-            refresh_interval_seconds=refresh_interval_seconds,
-            oauth_client_id=dbx_oauth_client_id,
-            oauth_client_secret=dbx_oauth_client_secret,
+        catalog_integrations: List[SnowflakeCatIntlDTO] = (
+            self.dbx_to_sf_helpers.fetch_uc_catalog_integration(
+                uc_endpoint=self.dbx_workspace_url,
+                refresh_interval_seconds=refresh_interval_seconds,
+                oauth_client_id=dbx_oauth_client_id,
+                oauth_client_secret=dbx_oauth_client_secret,
+            )
         )
 
         # Generate SQL for catalog integration creation
         sql_statements = self.dbx_to_sf_helpers.create_sf_cat_int(
-            sf_account_id = sf_account_id,
-            sf_user = sf_user,
-            sf_private_key_file = sf_private_key_file,
-            sf_private_key_file_pwd = sf_private_key_file_pwd,
-            sf_cat_int_dtos=catalog_integrations
+            sf_account_id=sf_account_id,
+            sf_user=sf_user,
+            sf_private_key_file=sf_private_key_file,
+            sf_private_key_file_pwd=sf_private_key_file_pwd,
+            sf_cat_int_dtos=catalog_integrations,
         )
         logging.info("Creating Snowflake catalog integrations completed.")
         return sql_statements

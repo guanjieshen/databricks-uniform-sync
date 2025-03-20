@@ -1,17 +1,12 @@
 from typing import Optional
-from snowflake_iceberg_catalog.repository_snowflake import SnowflakeRepository
+from repository.snowflake.repository_snowflake import SnowflakeRepository
 from snowflake.connector import ProgrammingError
 import logging
-import sys
+from config.logging_config import setup_logging
 
-
-# Configure logger
-logging.basicConfig(
-    stream=sys.stdout,  # Output to the notebook console
-    level=logging.INFO, # Adjust logging level as needed
-    format="%(asctime)s - %(levelname)s - %(message)s"
-)
-
+# Initialize logging
+setup_logging()
+import logging
 logger = logging.getLogger(__name__)
 
 class SnowflakeCatalogIntegrationLogic:
@@ -49,7 +44,7 @@ CATALOG_SOURCE = ICEBERG_REST
 TABLE_FORMAT = ICEBERG
 CATALOG_NAMESPACE = '{uc_schema_name}'
 REST_CONFIG = (
-    CATALOG_URI = '{uc_endpoint}',
+    CATALOG_URI = '{uc_endpoint}/oidc/v1/token',
     WAREHOUSE = '{uc_catalog_name}',
     ACCESS_DELEGATION_MODE = VENDED_CREDENTIALS
 )
@@ -103,6 +98,6 @@ REFRESH_INTERVAL_SECONDS = {refresh_interval_seconds};
             snowflake_repository.run_query(ddl)
 
         except ProgrammingError as e:
-                logger.error(f"SQL compilation error1213: {e}")
+                logger.error(f"SQL compilation error: {e}")
         except Exception as e:
             logger.exception(f"Error executing DDL: {e}")

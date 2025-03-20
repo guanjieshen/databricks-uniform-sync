@@ -1,7 +1,7 @@
-from databricks_unity_catalog.repository_iceberg_catalog import (
+from repository.databricks.repository_iceberg_catalog import (
     IcebergCatalogRepository,
 )
-from databricks_unity_catalog.repository_unity_catalog import UnityCatalogRepository
+from repository.databricks.repository_unity_catalog import UnityCatalogRepository
 
 from data_models.data_models import (
     Catalog,

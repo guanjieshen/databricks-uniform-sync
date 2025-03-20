@@ -1,7 +1,7 @@
 from typing import List
 from pyspark.sql import SparkSession, DataFrame
 from data_models.data_models import Catalog
-from metadata_mapping.metadata_mapping_repository import MetadataMappingRepository
+from repository.metadata.metadata_mapping_repository import MetadataMappingRepository
 from pyspark.sql.functions import xxhash64, lit
 from pyspark.sql.functions import collect_list, struct
 from pyspark.sql import Row
