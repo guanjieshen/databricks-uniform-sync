@@ -2,11 +2,14 @@ from typing import Optional
 from snowflake_iceberg_catalog.repository_snowflake import SnowflakeRepository
 from snowflake.connector import ProgrammingError
 import logging
+import sys
+
 
 # Configure logger
 logging.basicConfig(
-    level=logging.INFO,  # Set log level
-    format="%(asctime)s - %(levelname)s - %(message)s"  # Define log format
+    stream=sys.stdout,  # Output to the notebook console
+    level=logging.INFO, # Adjust logging level as needed
+    format="%(asctime)s - %(levelname)s - %(message)s"
 )
 
 logger = logging.getLogger(__name__)
