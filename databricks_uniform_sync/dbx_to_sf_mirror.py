@@ -1,21 +1,27 @@
 from typing import List, Optional
 from databricks_unity_catalog.logic_uc_mapping import UCMappingLogic
 from databricks_unity_catalog.logic_uc_tags import UCTagsLogic
-from data_models.data_models import Catalog, SnowflakeCatIntlDTO, SnowflakeIcebergTableDTO
+from data_models.data_models import (
+    Catalog,
+    SnowflakeCatIntlDTO,
+    SnowflakeIcebergTableDTO,
+)
 from metadata_mapping.metadata_mapping_logic import MetadataMappingLogic
 from pyspark.sql import SparkSession, DataFrame
 from databricks_uniform_sync.dbx_to_sf_helpers import DatabricksToSnowflakeHelpers
 import logging
 
 # Configure logging to output timestamps and log levels
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+)
 
 
 class DatabricksToSnowflakeMirror:
     """
     Class to handle synchronization between Databricks Unity Catalog and Snowflake.
 
-    This class handles metadata retrieval, tagging, and SQL generation for creating 
+    This class handles metadata retrieval, tagging, and SQL generation for creating
     Snowflake catalogs and tables based on Unity Catalog data.
     """
 
@@ -64,7 +70,7 @@ class DatabricksToSnowflakeMirror:
         """
         Create metadata tables if they do not exist.
 
-        This method ensures that the metadata tables required for syncing 
+        This method ensures that the metadata tables required for syncing
         between Databricks and Snowflake are available.
         """
         self.metadata_mapping_logic.create_metadata_tables()
@@ -84,7 +90,9 @@ class DatabricksToSnowflakeMirror:
         # Ensure metadata table is created before refreshing
         self.create_metadata_tables()
 
-        logging.info(f"Refreshing metadata for catalog: {catalog}, schema: {schema}, table: {table}")
+        logging.info(
+            f"Refreshing metadata for catalog: {catalog}, schema: {schema}, table: {table}"
+        )
 
         # Build the catalog hierarchy from Unity Catalog
         catalog_data = self.uc_mapping_logic.build_hierarchy_for_catalog(
@@ -99,24 +107,28 @@ class DatabricksToSnowflakeMirror:
         """
         Refresh metadata tags in Unity Catalog.
 
-        This method retrieves records from the metadata table that have missing 
+        This method retrieves records from the metadata table that have missing
         Snowflake mappings and updates them with appropriate metadata tags.
         """
         logging.info("Refreshing metadata tags in Unity Catalog...")
 
         # Get metadata records that lack Snowflake mappings
         metadata_table = self.metadata_mapping_logic.get_metadata_view()
-        metadata_table_results = metadata_table.filter(
-            metadata_table.snowflake_database.isNull()
-            & metadata_table.snowflake_schema.isNull()
-            & metadata_table.snowflake_table.isNull()
-            & metadata_table.snowflake_uniform_sync.isNull()
-        ).select(
-            metadata_table.uc_catalog_name,
-            metadata_table.uc_schema_name,
-            metadata_table.uc_table_name,
-            metadata_table.dbx_sf_uniform_metadata_id,
-        ).collect()
+        metadata_table_results = (
+            metadata_table.filter(
+                metadata_table.snowflake_database.isNull()
+                & metadata_table.snowflake_schema.isNull()
+                & metadata_table.snowflake_table.isNull()
+                & metadata_table.snowflake_uniform_sync.isNull()
+            )
+            .select(
+                metadata_table.uc_catalog_name,
+                metadata_table.uc_schema_name,
+                metadata_table.uc_table_name,
+                metadata_table.dbx_sf_uniform_metadata_id,
+            )
+            .collect()
+        )
 
         # Apply metadata tags to each table
         for table in metadata_table_results:
@@ -133,7 +145,10 @@ class DatabricksToSnowflakeMirror:
                 )
 
     def generate_sf_create_catalog_integrations_sql(
-        self, oauth_client_id: str, oauth_client_secret: str, refresh_interval_seconds: int = 3600
+        self,
+        oauth_client_id: str,
+        oauth_client_secret: str,
+        refresh_interval_seconds: int = 3600,
     ) -> List[str]:
         """
         Generate SQL statements for creating Snowflake catalog integrations.
@@ -157,8 +172,41 @@ class DatabricksToSnowflakeMirror:
         )
 
         # Generate SQL for catalog integration creation
-        sql_statements = self.dbx_to_sf_helpers.create_sf_cat_int_ddls(catalog_integrations)
+        sql_statements = self.dbx_to_sf_helpers.create_sf_cat_int_ddls(
+            catalog_integrations
+        )
         logging.info("Generated catalog integration SQL statements.")
+        return sql_statements
+
+    def create_sf_create_catalog_integrations(
+        self,
+        sf_account_id: str,
+        sf_user: str,
+        sf_private_key_file: str,
+        sf_private_key_file_pwd: str,
+        dbx_oauth_client_id: str,
+        dbx_oauth_client_secret: str,
+        refresh_interval_seconds: int = 3600,
+    ):
+        logging.info("Creating Snowflake catalog integrations...")
+
+        # Fetch catalog integration details from Databricks
+        catalog_integrations = self.dbx_to_sf_helpers.fetch_uc_catalog_integration(
+            uc_endpoint=self.dbx_workspace_url,
+            refresh_interval_seconds=refresh_interval_seconds,
+            oauth_client_id=dbx_oauth_client_id,
+            oauth_client_secret=dbx_oauth_client_secret,
+        )
+
+        # Generate SQL for catalog integration creation
+        sql_statements = self.dbx_to_sf_helpers.create_sf_cat_int(
+            sf_account_id = sf_account_id,
+            sf_user = sf_user,
+            sf_private_key_file = sf_private_key_file,
+            sf_private_key_file_pwd = sf_private_key_file_pwd,
+            catalog_integrations=catalog_integrations
+        )
+        logging.info("Creating Snowflake catalog integrations completed.")
         return sql_statements
 
     def generate_sf_create_tables_sql(self, auto_refresh: bool = True) -> List[str]:

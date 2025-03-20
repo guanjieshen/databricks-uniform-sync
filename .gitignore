@@ -3,7 +3,7 @@ __pycache__/
 *.py[cod]
 *$py.class
 myenv
-
+rsa
 # Databricks Notebooks
 mapping_configs/
 example*

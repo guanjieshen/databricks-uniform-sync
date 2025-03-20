@@ -1,8 +1,6 @@
 from typing import List
 from snowflake_iceberg_catalog.logic_snowflake_table import SnowflakeTableLogic
-from snowflake_iceberg_catalog.repository_snowflake_catalog_integration import (
-    SnowflakeCatalogIntegrationRepository,
-)
+from snowflake_iceberg_catalog.repository_snowflake import SnowflakeRepository
 from snowflake_iceberg_catalog.logic_snowflake_catalog_integration import (
     SnowflakeCatalogIntegrationLogic,
 )
@@ -11,7 +9,9 @@ from pyspark.sql import SparkSession
 from data_models.data_models import SnowflakeCatIntlDTO, SnowflakeIcebergTableDTO
 from pyspark.sql import Row
 
-from snowflake_iceberg_catalog.repository_snowflake_table import SnowflakeTableRepository
+from snowflake_iceberg_catalog.repository_snowflake_table import (
+    SnowflakeTableRepository,
+)
 
 
 class DatabricksToSnowflakeHelpers:
@@ -45,9 +45,9 @@ class DatabricksToSnowflakeHelpers:
             table=metadata_table,
         )
         self.sf_cat_int_logic = SnowflakeCatalogIntegrationLogic(
-            SnowflakeCatalogIntegrationRepository()
+            SnowflakeCatalogIntegrationLogic(SnowflakeRepository)
         )
-        self.sf_table_logic= SnowflakeTableLogic(SnowflakeTableRepository())
+        self.sf_table_logic = SnowflakeTableLogic(SnowflakeTableRepository())
 
     def fetch_uc_catalog_integration(
         self,
@@ -74,30 +74,30 @@ class DatabricksToSnowflakeHelpers:
         ]
 
     def fetch_uc_tables(
-            self,
-            auto_refresh: bool,
-        ) -> List[SnowflakeIcebergTableDTO]:
+        self,
+        auto_refresh: bool,
+    ) -> List[SnowflakeIcebergTableDTO]:
 
-            metadata_view_df: List[Row] = (
-                self.metadata_mapping_logic.get_metadata_az_tables()
+        metadata_view_df: List[Row] = (
+            self.metadata_mapping_logic.get_metadata_az_tables()
+        )
+        return [
+            SnowflakeIcebergTableDTO(
+                catalog_integration_name=row["snowflake_catalog_integration"],
+                uc_table_name=row["uc_table_name"],
+                snowflake_database=row["snowflake_database"],
+                snowflake_schema=row["snowflake_schema"],
+                snowflake_table=row["snowflake_table"],
+                auto_refresh=auto_refresh,
             )
-            return [
-                SnowflakeIcebergTableDTO(
-                    catalog_integration_name=row["snowflake_catalog_integration"],
-                    uc_table_name=row["uc_table_name"],
-                    snowflake_database=row["snowflake_database"],
-                    snowflake_schema=row["snowflake_schema"],
-                    snowflake_table=row["snowflake_table"],
-                    auto_refresh=auto_refresh,
-                )
-                for row in metadata_view_df
-            ]
+            for row in metadata_view_df
+        ]
 
     def create_sf_cat_int_ddls(
         self, sf_cat_int_dtos: List[SnowflakeCatIntlDTO]
     ) -> List[str]:
         return [
-            self.sf_cat_int_logic.create_catalog_integration(
+            self.sf_cat_int_logic.generate_ddl_catalog_integration(
                 only_generate_sql=True,
                 sf_catalog_integration_name=item.catalog_integration_name,
                 uc_catalog_name=item.uc_catalog_name,
@@ -110,10 +110,41 @@ class DatabricksToSnowflakeHelpers:
             for item in sf_cat_int_dtos
         ]
 
+    def create_sf_cat_int(
+        self,
+        sf_account_id: str,
+        sf_user: str,
+        sf_private_key_file: str,
+        sf_private_key_file_pwd: str,
+        sf_cat_int_dtos: List[SnowflakeCatIntlDTO],
+    ) -> None:
+        
+        snowflake_repository:SnowflakeRepository = SnowflakeRepository(
+            account_id=sf_account_id,
+            user=sf_user,
+            private_key_file=sf_private_key_file,
+            private_key_file_pwd=sf_private_key_file_pwd,
+        )
+
+        return [
+            self.sf_cat_int_logic.create_catalog_integration(
+                snowflake_repository=snowflake_repository,
+                sf_catalog_integration_name=item.catalog_integration_name,
+                uc_catalog_name=item.uc_catalog_name,
+                uc_schema_name=item.uc_schema_name,
+                uc_endpoint=item.uc_endpoint,
+                oauth_client_id=item.oauth_client_id,
+                oauth_client_secret=item.oauth_client_secret,
+                refresh_interval_seconds=item.refresh_interval_seconds,
+            )
+            for item in sf_cat_int_dtos
+        ]
+
     def create_sf_table_ddls(
-        self, sf_table_dtos: List[SnowflakeIcebergTableDTO],
+        self,
+        sf_table_dtos: List[SnowflakeIcebergTableDTO],
     ) -> List[str]:
-         
+
         return [
             self.sf_table_logic.create_iceberg_table(
                 only_generate_sql=True,
