@@ -1,6 +1,13 @@
 from pyspark.sql import SparkSession, DataFrame
 from delta.tables import *
 import logging
+from config.logging_config import setup_logging  # Import logging setup configuration
+
+# Initialize logging using the configured settings
+setup_logging()
+
+# Create a logger for this module
+logger = logging.getLogger("dbx_to_sf_mirror")
 
 
 class MetadataMappingRepository:
@@ -36,11 +43,11 @@ class MetadataMappingRepository:
                         This table is managed by the `DatabricksToSnowflakeMirror` library. Do not modify this table manually.'
                     """
             self.spark_session.sql(sqlQuery=sql_text)
-            logging.info(
+            logger.info(
                 f"Metadata table `{self.catalog}`.`{self.schema}`.`{self.table}` confirmed."
             )
         except Exception as e:
-            print(f"Error creating metadata table: {e}")
+            logger.error(f"Error creating metadata table: {e}")
 
     def create_metadata_joined_view(self):
         try:
@@ -79,11 +86,11 @@ class MetadataMappingRepository:
                         )
                     """
             self.spark_session.sql(sqlQuery=sql_text)
-            logging.info(
+            logger.info(
                 f"Metadata view `{self.catalog}`.`{self.schema}`.`{self.table}_vw` confirmed."
             )
         except Exception as e:
-            print(f"Error creating metadata table: {e}")
+            logger.error(f"Error creating metadata table: {e}")
 
     def get_metadata_table(self) -> DataFrame:
         return self.spark_session.sql(
