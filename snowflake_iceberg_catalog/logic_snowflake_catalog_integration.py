@@ -1,7 +1,4 @@
 from typing import Optional
-from snowflake_iceberg_catalog.repository_snowflake_catalog_integration import (
-    SnowflakeCatalogIntegrationRepository,
-)
 from snowflake_iceberg_catalog.repository_snowflake import SnowflakeRepository
 from snowflake.connector import ProgrammingError
 
