@@ -3,42 +3,23 @@ import logging.config
 import sys
 import colorlog
 
-# Create a color formatter using colorlog
-formatter = colorlog.ColoredFormatter(
-    '%(log_color)s%(asctime)s [%(levelname)s] %(name)s: %(message)s',
-    log_colors={
-        'DEBUG': 'cyan',
-        'INFO': 'green',
-        'WARNING': 'yellow',
-        'ERROR': 'red',
-        'CRITICAL': 'bold_red',
-    }
-)
-
-# Create a stream handler using the color formatter
-console_handler = logging.StreamHandler(sys.stdout)
-console_handler.setFormatter(formatter)
-console_handler.setLevel(logging.INFO)
-
+# Define a basic logging config (without the formatter)
 LOGGING_CONFIG = {
     'version': 1,
     'disable_existing_loggers': False,
     'handlers': {
         'databricks_console': {
             'class': 'logging.StreamHandler',
-            'formatter': 'color',
             'level': 'INFO',
             'stream': sys.stdout,
         }
     },
     'loggers': {
-        # Suppress other libraries and root logger
         '': {
             'handlers': ['databricks_console'],
             'level': 'WARNING',
             'propagate': False
         },
-        # Custom logger for your app
         'dbx_to_sf_mirror': {
             'handlers': ['databricks_console'],
             'level': 'INFO',
@@ -48,6 +29,27 @@ LOGGING_CONFIG = {
 }
 
 def setup_logging():
-    # Manually configure the handler with colorlog
+    # First configure using dictConfig
     logging.config.dictConfig(LOGGING_CONFIG)
-    logging.getLogger('databricks_console').handlers = [console_handler]
+    
+    # Create a color formatter using colorlog
+    formatter = colorlog.ColoredFormatter(
+        '%(log_color)s%(asctime)s [%(levelname)s] %(name)s: %(message)s',
+        log_colors={
+            'DEBUG': 'cyan',
+            'INFO': 'green',
+            'WARNING': 'yellow',
+            'ERROR': 'red',
+            'CRITICAL': 'bold_red',
+        }
+    )
+
+    # Create a stream handler using colorlog
+    console_handler = logging.StreamHandler(sys.stdout)
+    console_handler.setFormatter(formatter)
+    console_handler.setLevel(logging.INFO)
+
+    # Attach colorlog handler to the 'dbx_to_sf_mirror' logger
+    logger = logging.getLogger('dbx_to_sf_mirror')
+    logger.handlers.clear()  # Remove existing handlers
+    logger.addHandler(console_handler)
