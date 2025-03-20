@@ -71,7 +71,7 @@ class DatabricksToSnowflakeMirror:
         between Databricks and Snowflake are available.
         """
         self.metadata_mapping_logic.create_metadata_tables()
-        logging.info("Metadata tables have been created or already exist.")
+        logger.info("Metadata tables have been created or already exist.")
 
     def refresh_uc_metadata(
         self, catalog: str, schema: Optional[str] = None, table: Optional[str] = None
@@ -87,7 +87,7 @@ class DatabricksToSnowflakeMirror:
         # Ensure metadata table is created before refreshing
         self.create_metadata_tables()
 
-        logging.info(
+        logger.info(
             f"Refreshing metadata for catalog: {catalog}, schema: {schema}, table: {table}"
         )
 
@@ -98,7 +98,7 @@ class DatabricksToSnowflakeMirror:
 
         # Write catalog data into the metadata table
         self.metadata_mapping_logic.refresh_metadata_table(catalog=catalog_data)
-        logging.info(f"Metadata refresh completed for catalog: {catalog}")
+        logger.info(f"Metadata refresh completed for catalog: {catalog}")
 
     def refresh_uc_metadata_tags(self) -> None:
         """
@@ -107,7 +107,7 @@ class DatabricksToSnowflakeMirror:
         This method retrieves records from the metadata table that have missing
         Snowflake mappings and updates them with appropriate metadata tags.
         """
-        logging.info("Refreshing metadata tags in Unity Catalog...")
+        logger.info("Refreshing metadata tags in Unity Catalog...")
 
         # Get metadata records that lack Snowflake mappings
         metadata_table = self.metadata_mapping_logic.get_metadata_view()
@@ -133,11 +133,11 @@ class DatabricksToSnowflakeMirror:
                 self.uc_tags_logic.add_uc_metadata_tags(
                     table.uc_catalog_name, table.uc_schema_name, table.uc_table_name
                 )
-                logging.info(
+                logger.info(
                     f"Added UC discovery tags to table: {table.uc_catalog_name}.{table.uc_schema_name}.{table.uc_table_name}"
                 )
             except Exception as e:
-                logging.error(
+                logger.error(
                     f"Failed to add tags to table {table.uc_catalog_name}.{table.uc_schema_name}.{table.uc_table_name}: {e}"
                 )
 
@@ -158,7 +158,7 @@ class DatabricksToSnowflakeMirror:
         Returns:
             List[str]: A list of SQL statements to create catalog integrations.
         """
-        logging.info("Generating SQL for creating Snowflake catalog integrations...")
+        logger.info("Generating SQL for creating Snowflake catalog integrations...")
 
         # Fetch catalog integration details from Databricks
         catalog_integrations: List[SnowflakeCatIntlDTO] = (
@@ -174,7 +174,7 @@ class DatabricksToSnowflakeMirror:
         sql_statements = self.dbx_to_sf_helpers.create_sf_cat_int_ddls(
             catalog_integrations
         )
-        logging.info("Generated catalog integration SQL statements.")
+        logger.info("Generated catalog integration SQL statements.")
         return sql_statements
 
     def create_sf_create_catalog_integrations(
@@ -187,7 +187,7 @@ class DatabricksToSnowflakeMirror:
         dbx_oauth_client_secret: str,
         refresh_interval_seconds: int = 3600,
     ):
-        logging.info("Creating Snowflake catalog integrations...")
+        logger.info("Creating Snowflake catalog integrations...")
 
         # TODO: Test the connection to the IRC using the credentials provided.
 
@@ -209,7 +209,7 @@ class DatabricksToSnowflakeMirror:
             sf_private_key_file_pwd=sf_private_key_file_pwd,
             sf_cat_int_dtos=catalog_integrations,
         )
-        logging.info("Creating Snowflake catalog integrations completed.")
+        logger.info("Creating Snowflake catalog integrations completed.")
         return sql_statements
 
     def generate_sf_create_tables_sql(self, auto_refresh: bool = True) -> List[str]:
@@ -222,12 +222,12 @@ class DatabricksToSnowflakeMirror:
         Returns:
             List[str]: A list of SQL statements to create Snowflake tables.
         """
-        logging.info("Generating SQL for creating Snowflake tables...")
+        logger.info("Generating SQL for creating Snowflake tables...")
 
         # Fetch Unity Catalog tables for Snowflake
         tables = self.dbx_to_sf_helpers.fetch_uc_tables(auto_refresh)
 
         # Generate SQL for table creation
         sql_statements = self.dbx_to_sf_helpers.create_sf_table_ddls(tables)
-        logging.info("Generated Snowflake table creation SQL statements.")
+        logger.info("Generated Snowflake table creation SQL statements.")
         return sql_statements
