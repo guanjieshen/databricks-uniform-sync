@@ -39,7 +39,7 @@ LOGGING_CONFIG = {
             'propagate': False
         },
         # Custom logger for your app
-        'my_app': {
+        'dbx_to_sf_mirror': {
             'handlers': ['databricks_console'],
             'level': 'INFO',
             'propagate': False
