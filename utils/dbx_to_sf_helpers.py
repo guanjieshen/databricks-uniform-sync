@@ -231,4 +231,12 @@ class DatabricksToSnowflakeHelpers:
         )
 
         for item in sf_table_dtos:
-            self.table_logic.create_iceberg_table(repository, **vars(item))
+            self.table_logic.create_iceberg_table(
+                repository,
+                sf_database_name=item.snowflake_database,
+                sf_schema_name=item.snowflake_schema,
+                sf_table_name=item.snowflake_table,
+                sf_catalog_integration_name=item.catalog_integration_name,
+                db_table_name=item.uc_table_name,
+                auto_refresh=item.auto_refresh,
+            )
