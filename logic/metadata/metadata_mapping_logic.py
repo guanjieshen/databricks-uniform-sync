@@ -24,7 +24,7 @@ logger = logging.getLogger("dbx_to_sf_mirror")
 
 class MetadataMappingLogic:
     """
-    Logic class for handling metadata mapping between Azure and Snowflake.
+    Logic class for handling metadata mapping between Databricks and Snowflake.
     This class provides methods to create, refresh, and query metadata tables.
     """
 
@@ -76,7 +76,7 @@ class MetadataMappingLogic:
         """
         return self.metadata_mapping_repository.get_metadata_view()
 
-    def get_metadata_az_sf_catalog_integration(self) -> List[Row]:
+    def get_metadata_sf_catalog_integration(self) -> List[Row]:
         """
         Get a list of catalog and schema combinations where the values are not null.
 
@@ -111,7 +111,7 @@ class MetadataMappingLogic:
             .collect()[0]["combinations"]
         )
 
-    def get_metadata_az_tables(self) -> List[Row]:
+    def get_metadata_tables(self) -> List[Row]:
         """
         Get a list of table combinations where the metadata is valid.
 
@@ -184,21 +184,11 @@ class MetadataMappingLogic:
                     )
                 ),
             )
-            # Extract storage account from table location using regex
-            .withColumn(
-                "az_storage_account",
-                regexp_extract(col("table_location"), r"@([^\.]+)", 1),
-            )
-            # Extract container name from table location using regex
-            .withColumn(
-                "az_container_name",
-                regexp_extract(col("table_location"), r"abfss://([^@]+)", 1),
-            )
             # Create a Snowflake catalog integration string based on hash values
             .withColumn(
                 "snowflake_catalog_integration",
                 concat(
-                    lit("az_dbx_uc_catint_"),
+                    lit("dbx_uc_catint_"),
                     ps_abs(xxhash64(col("uc_catalog_id"), col("uc_schema_id"))),
                 ),
             )

@@ -246,4 +246,5 @@ class DatabricksToSnowflakeMirror:
             sf_private_key_file_pwd,
             tables,
         )
-        logger.info("Iceberg tables created.")
+        logger.info("Iceberg table   creation process completed.")
+        #TODO: Update metadata table with updated dates

@@ -32,8 +32,6 @@ class MetadataMappingRepository:
                         uc_table_id STRING,
                         uc_table_name STRING,
                         table_location STRING,
-                        az_storage_account STRING,
-                        az_container_name STRING,
                         table_type STRING,
                         snowflake_catalog_integration STRING,
                         last_sync_dated TIMESTAMP)
@@ -120,9 +118,7 @@ class MetadataMappingRepository:
                     "uc_table_name": "updates.uc_table_name",
                     "table_location": "updates.table_location",
                     "table_type": "updates.table_type",
-                    "snowflake_catalog_integration": "updates.snowflake_catalog_integration",
-                    "az_storage_account": "updates.az_storage_account",
-                    "az_container_name": "updates.az_container_name",
+                    "snowflake_catalog_integration": "updates.snowflake_catalog_integration"
                 }
             )
             .whenNotMatchedInsertAll()

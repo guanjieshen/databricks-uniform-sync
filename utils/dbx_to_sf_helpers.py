@@ -13,9 +13,6 @@ from pyspark.sql import Row
 class DatabricksToSnowflakeHelpers:
     """
     Helper class for integrating Databricks with Snowflake.
-
-    Provides methods to retrieve Azure storage locations from metadata and
-    generate Snowflake External Volume DDLs.
     """
 
     def __init__(
@@ -90,7 +87,7 @@ class DatabricksToSnowflakeHelpers:
             List[SnowflakeCatIntlDTO]: List of catalog integration DTOs.
         """
         metadata_rows: List[Row] = (
-            self.metadata_mapping_logic.get_metadata_az_sf_catalog_integration()
+            self.metadata_mapping_logic.get_metadata_sf_catalog_integration()
         )
         return [
             SnowflakeCatIntlDTO(
@@ -118,7 +115,7 @@ class DatabricksToSnowflakeHelpers:
         Returns:
             List[SnowflakeIcebergTableDTO]: List of table DTOs.
         """
-        metadata_rows: List[Row] = self.metadata_mapping_logic.get_metadata_az_tables()
+        metadata_rows: List[Row] = self.metadata_mapping_logic.get_metadata_tables()
         return [
             SnowflakeIcebergTableDTO(
                 catalog_integration_name=row["snowflake_catalog_integration"],
