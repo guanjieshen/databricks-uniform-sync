@@ -1,57 +1,62 @@
-#  Databricks to Snowflake Table Mirroring
+# Databricks to Snowflake Table Mirroring
 
-This repository provides a utility to **synchronize (mirror) Iceberg table metadata** from **Databricks Unity Catalog** to **Snowflake Horizon**. It automates the creation of **Snowflake Catalog Integrations** and **External Iceberg Tables**, based on metadata managed within Unity Catalog.
+This repository provides a utility to **synchronize (mirror) Iceberg table metadata** from **Databricks Unity Catalog** to **Snowflake Horizon**.
 
-> ⚠️ **Note:** This library uses **credential vending**, so there's no need to configure Snowflake External Volumes for storage access.
+It automates the creation of:
+- Snowflake Catalog Integrations
+- External Iceberg Tables
+
+> Note: This library uses **credential vending** to access cloud storage. Snowflake External Volumes are **not** required.
 
 ---
 
 ## Table of Contents
 
-1. [Overview](#overview)  
-2. [Snowflake Setup](#snowflake-setup)  
-3. [Databricks Setup](#databricks-setup)  
-4. [How to Use](#how-to-use)  
-5. [Example Usage](#example-usage)  
-6. [Configuration](#configuration-options)  
-7. [Limitations](#limitations)  
+1. [Overview](#overview)
+2. [Snowflake Setup](#snowflake-setup)
+3. [Databricks Setup](#databricks-setup)
+4. [How to Use](#how-to-use)
+5. [Configuration](#configuration)
+6. [Parameter Reference](#parameter-reference)
+7. [Example Usage](#example-usage)
+8. [Limitations](#limitations)
 
 ---
 
 ## Overview
 
-This tool automates the following:
+This utility automates the following tasks:
 
-- ✅ Retrieves Iceberg table metadata from Unity Catalog  
-- ✅ Manages Delta-based metadata tables in Databricks  
-- ✅ Creates Snowflake Catalog Integrations  
-- ✅ Creates External Iceberg Tables in Snowflake  
+- Retrieves Iceberg metadata from Unity Catalog  
+- Generates Delta-based metadata tables in Databricks  
+- Creates Catalog Integrations in Snowflake  
+- Creates External Iceberg Tables in Snowflake  
 
 ---
 
 ## Snowflake Setup
 
-This tool supports two usage patterns:
+This utility supports two usage patterns:
 
-- **Manual:** Generate SQL DDLs for execution in Snowflake  
-- **Automated:** Create Snowflake objects directly from Databricks  
+- Manual: Generate DDLs for execution in Snowflake
+- Automated: Create Snowflake assets directly from Databricks
 
-For automated, configure a **Snowflake service account** with the appropriate privileges to perform the following:
+Required Snowflake permissions:
 
-- Catalog Integration creation  
-- External Iceberg Table creation  
+- Create Catalog Integrations
+- Create External Iceberg Tables
 
 ---
 
 ## Databricks Setup
 
-Install the package:
+Install the library:
 
 ```bash
 pip install databricks_uniform_sync
 ```
 
-Initialize the class (ensure the specified catalog & schema exist in Unity Catalog):
+Initialize the class:
 
 ```python
 from databricks_uniform_sync import DatabricksToSnowflakeMirror
@@ -59,7 +64,7 @@ from databricks_uniform_sync import DatabricksToSnowflakeMirror
 d2s = DatabricksToSnowflakeMirror(
     spark_session=spark,
     dbx_workspace_url="https://dbcxyz.databricks.cloud.net",
-    dbx_workspace_pat="dapi...",  # Personal Access Token
+    dbx_workspace_pat="dapi...",
     metadata_catalog="dbx_sf_mirror_catalog",
     metadata_schema="dbx_sf_mirror_schema"
 )
@@ -76,7 +81,8 @@ d2s.create_metadata_tables()
 d2s.refresh_metadata_tables(catalog="your_catalog")
 ```
 
-> These methods are **idempotent** — re-running them will not create duplicates.
+These methods are idempotent and safe to rerun.  
+If metadata tables do not exist, `refresh_metadata_tables()` will create them.
 
 ---
 
@@ -86,13 +92,13 @@ d2s.refresh_metadata_tables(catalog="your_catalog")
 d2s.refresh_uc_metadata_tags()
 ```
 
-> **Important:** These internal tags are required for sync. Do **not remove** them. This method is also **idempotent**.
+These tags are used to determine sync eligibility. Do not remove them.
 
 ---
 
 ### 3. Create Snowflake Catalog Integrations
 
-**Dry run (generate SQL):**
+Dry run (SQL only):
 
 ```python
 d2s.generate_create_sf_catalog_integrations_sql(
@@ -101,7 +107,7 @@ d2s.generate_create_sf_catalog_integrations_sql(
 )
 ```
 
-**Execute directly:**
+Execute directly:
 
 ```python
 d2s.create_sf_catalog_integrations(
@@ -114,19 +120,17 @@ d2s.create_sf_catalog_integrations(
 )
 ```
 
-> Integration names are auto-generated using a hash of the Unity Catalog & schema.
-
 ---
 
 ### 4. Create Iceberg Tables in Snowflake
 
-**Dry run (generate SQL):**
+Dry run:
 
 ```python
 d2s.generate_create_sf_iceberg_tables_sql()
 ```
 
-**Execute directly:**
+Execute directly:
 
 ```python
 d2s.create_sf_iceberg_tables_sql(
@@ -137,45 +141,32 @@ d2s.create_sf_iceberg_tables_sql(
 )
 ```
 
-> 🔐 Credentials can be reused from the Catalog Integration step.
-
 ---
 
-## Configuration Options
+## Configuration
 
 ### Custom Metadata Table Name
 
 ```python
 d2s = DatabricksToSnowflakeMirror(
-    spark,
+    spark_session,
     dbx_workspace_url,
     dbx_workspace_pat,
     metadata_catalog,
     metadata_schema,
-    metadata_table_name="custom_metadata_table"
+    metadata_table_name="custom_table_name"
 )
 ```
 
-> A corresponding view will be auto-created with a `_vw` suffix.
+A corresponding view will also be created with a `_vw` suffix.
 
 ---
 
-### Custom Refresh Interval (Catalog Integration)
+### Custom Refresh Interval
 
 ```python
-d2s.generate_create_sf_catalog_integrations_sql(
-    oauth_client_id,
-    oauth_client_secret,
-    refresh_interval_seconds=120
-)
-
 d2s.create_sf_catalog_integrations(
-    sf_account_id,
-    sf_user,
-    sf_private_key_file,
-    sf_private_key_file_pwd,
-    oauth_client_id,
-    oauth_client_secret,
+    ...,
     refresh_interval_seconds=120
 )
 ```
@@ -185,31 +176,53 @@ d2s.create_sf_catalog_integrations(
 ### Disable Auto-Refresh on Iceberg Tables
 
 ```python
-d2s.generate_create_sf_iceberg_tables_sql(auto_refresh=False)
-
 d2s.create_sf_iceberg_tables_sql(
-    sf_account_id,
-    sf_user,
-    sf_private_key_file,
-    sf_private_key_file_pwd,
+    ...,
     auto_refresh=False
 )
 ```
 
 ---
 
-## Example Usage
+## Parameter Reference
 
-_Coming soon._  
-Add a sample script, demo notebook, or walkthrough here.
+### Databricks Parameters
+
+| Parameter | Description |
+|-----------|-------------|
+| `spark_session` | Active SparkSession in Databricks |
+| `dbx_workspace_url` | URL of your Databricks workspace |
+| `dbx_workspace_pat` | Personal Access Token for authentication |
+| `metadata_catalog` | Unity Catalog catalog to store metadata |
+| `metadata_schema` | Unity Catalog schema to store metadata |
+| `metadata_table_name` (optional) | Custom name for metadata table |
+
+### Snowflake Parameters
+
+| Parameter | Description |
+|-----------|-------------|
+| `sf_account_id` | Snowflake account identifier |
+| `sf_user` | Snowflake user/service account |
+| `sf_private_key_file` | Path to RSA private key |
+| `sf_private_key_file_pwd` | Password to decrypt RSA key |
+| `oauth_client_id` | Databricks OAuth client ID |
+| `oauth_client_secret` | Databricks OAuth client secret |
+| `refresh_interval_seconds` (optional) | Catalog Integration refresh interval |
+| `auto_refresh` (optional) | Enable/disable automatic refresh on tables |
 
 ---
 
-## **Limitations**
+## Example Usage
 
-- ❌ Only supports **Iceberg tables on S3**  
-  (Support for other storage types like ADLS depends on Snowflake updates)  
-- ❌ **Deletes are not mirrored** — Dropping tables in Unity Catalog does **not** delete them in Snowflake  
-- ❌ Only supports **RSA key pair authentication** — User/password logins aren't supported due to MFA  
+_Coming soon._  
+A demo notebook or script will be added to show end-to-end execution.
+
+---
+
+## Limitations
+
+- Only supports Iceberg tables on S3  
+- Deleting tables in Unity Catalog does not remove them in Snowflake  
+- Only supports RSA key pair authentication (Snowflake MFA compliance)
 
 ---
