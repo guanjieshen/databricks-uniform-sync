@@ -1,4 +1,9 @@
 # Databricks to Snowflake Table Mirroring
+[![image](https://img.shields.io/pypi/v/databricks-uniform-sync.svg)](https://pypi.org/project/databricks-uniform-sync/)
+[![image](https://pepy.tech/badge/databricks-uniform-sync)](https://pepy.tech/project/databricks-uniform-sync)
+[![image](https://github.com/guanjieshen/databricks-uniform-sync/workflows/build/badge.svg)](https://github.com/guanjieshen/databricks-uniform-sync/actions?query=workflow%3Abuild)
+[![image](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 
 This repository provides a utility to **synchronize (mirror) Iceberg table metadata** from **Databricks Unity Catalog** to **Snowflake Horizon**.
 
