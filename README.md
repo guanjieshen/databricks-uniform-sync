@@ -29,7 +29,7 @@ This tool automates the following:
 
 ---
 
-## ❄️ **Snowflake Setup**
+## Snowflake Setup
 
 This tool supports two usage patterns:
 
