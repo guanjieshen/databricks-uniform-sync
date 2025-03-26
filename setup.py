@@ -10,7 +10,7 @@ with open("requirements.txt") as f:
 
 setup(
     name="databricks_uniform_sync",
-    version="0.1.0",
+    version="0.3.3",
     description="A SDK for syncing Databricks using Unity Catalog and Uniform",
     long_description=open("README.md").read(),
     long_description_content_type="text/markdown",
