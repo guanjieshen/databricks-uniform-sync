@@ -174,8 +174,6 @@ class MetadataMappingLogic:
         # Create Spark DataFrame from the flattened rows
         df_updates: DataFrame = (
             self.spark_session.createDataFrame(rows)
-            # Only include managed tables since credential vending supports only managed tables
-            .filter(col("table_type") == "MANAGED")
             # Generate a unique hash for identifying records
             .withColumn(
                 "dbx_sf_uniform_metadata_id",
