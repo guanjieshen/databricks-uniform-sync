@@ -96,3 +96,11 @@ class SnowflakeIcebergTableDTO(BaseModel):
     snowflake_schema: str                # Container name used in the external volume.
     snowflake_table: str                     # Identifier for the tenant.
     auto_refresh: bool                     # Should the table automatically refresh
+
+class SyncStatusDTO(BaseModel):
+    """
+    Data Transfer Object for synchronization status.
+    """
+    dbx_sf_uniform_metadata_id: int  # Metadata ID associated with the table.
+    sync_status: str                  # Status of the synchronization process.
+    sync_message: str                 # Message providing details about the synchronization status.

@@ -5,6 +5,7 @@ from pyspark.sql import Row, SparkSession
 from databricks_uniform_sync.data_models.data_models import (
     SnowflakeCatIntlDTO,
     SnowflakeIcebergTableDTO,
+    SyncStatusDTO
 )
 
 from databricks_uniform_sync.logic.metadata.metadata_mapping_logic import MetadataMappingLogic
@@ -240,7 +241,7 @@ class DatabricksToSnowflakeHelpers:
             sf_account_id, sf_user, sf_private_key_file, sf_private_key_file_pwd
         )
 
-        sucessful_metadata_ids:List[str] = []
+        sync_statuses: List[SyncStatusDTO] = []
 
         for item in sf_table_dtos:
             try:
@@ -253,12 +254,21 @@ class DatabricksToSnowflakeHelpers:
                     db_table_name=item.uc_table_name,
                     auto_refresh=item.auto_refresh,
                 )
-                sucessful_metadata_ids.append(item.dbx_sf_uniform_metadata_id)
+                sync_statuses.append(SyncStatusDTO(
+                    dbx_sf_uniform_metadata_id=item.dbx_sf_uniform_metadata_id,
+                    sync_status="success",
+                    sync_message=f"Table '{item.snowflake_table}' created successfully."
+                ))
             except Exception as e:
-                pass
-        self.metadata_mapping_logic.update_metadata_last_sync_date(sucessful_metadata_ids)
+                sync_statuses.append(SyncStatusDTO(
+                dbx_sf_uniform_metadata_id=item.dbx_sf_uniform_metadata_id,
+                sync_status="failed",
+                sync_message=str(e)
+                ))
+        # Update the metadata table with the  table IDs
+        self.metadata_mapping_logic.update_metadata_sync_details(sync_statuses)
         
-        # Update the metadata table with the successful table IDs
+
 
     def create_sf_databases(
         self,

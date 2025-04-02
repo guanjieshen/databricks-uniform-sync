@@ -14,7 +14,7 @@ from pyspark.sql.functions import (
 )
 
 from databricks_uniform_sync.config.logging_config import setup_logging  # Project logging setup
-from databricks_uniform_sync.data_models.data_models import Catalog
+from databricks_uniform_sync.data_models.data_models import Catalog, SyncStatusDTO
 from databricks_uniform_sync.repository.metadata.metadata_mapping_repository import MetadataMappingRepository
 
 # Initialize logging using the configured settings
@@ -194,7 +194,7 @@ class MetadataMappingLogic:
                 ),
             )
             # Add a column for the last sync date (initially set to None)
-            .withColumn("last_sync_dated", lit(None))
+            .withColumn("sync_date", lit(None))
         )
 
         try:
@@ -203,7 +203,7 @@ class MetadataMappingLogic:
         except Exception as e:
             logger.error(f"Error updating metadata table: {e}")
 
-    def update_metadata_last_sync_date(self, metadata_ids: List[str]):
+    def update_metadata_sync_details(self,  sync_statuses: List[SyncStatusDTO]):
         """
         Update the last sync date in the metadata table
 
@@ -212,19 +212,21 @@ class MetadataMappingLogic:
         """
         rows = [
             {
-                "dbx_sf_uniform_metadata_id": metadata_id,
+                "dbx_sf_uniform_metadata_id": item.dbx_sf_uniform_metadata_id,
+                "sync_status": item.sync_status,
+                "sync_message": item.sync_message,
             }
-            for metadata_id in metadata_ids
+            for item in sync_statuses
         ]
 
         # Create Spark DataFrame from the flattened rows
         df_updates: DataFrame = self.spark_session.createDataFrame(rows).withColumn(
-            "last_sync_dated", current_timestamp()
+            "sync_date", current_timestamp()
         )
         try:
-            logger.info(f"Updating last sync date...")
+            logger.info(f"Updating sync details...")
             # Upsert the metadata table with the new DataFrame
-            self.metadata_mapping_repository.update_last_sync_dated(df_updates)
-            logger.info(f"Updating last sync date completed...")
+            self.metadata_mapping_repository.update_sync_details(df_updates)
+            logger.info(f"Updating sync details...")
         except Exception as e:
-            logger.error(f"Error updating last sync date: {e}")
+            logger.error(f"Error updating sync details: {e}")

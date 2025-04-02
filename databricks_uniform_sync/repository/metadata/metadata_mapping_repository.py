@@ -36,7 +36,9 @@ class MetadataMappingRepository:
                         table_location STRING,
                         table_type STRING,
                         snowflake_catalog_integration STRING,
-                        last_sync_dated TIMESTAMP)
+                        sync_date TIMESTAMP,
+                        sync_status STRING,
+                        sync_message STRING,)
                         USING delta
                         COMMENT 'The`dbx_sf_uniform_metadata` table contains metadata information. 
 
@@ -127,7 +129,7 @@ class MetadataMappingRepository:
             .execute()
         )
     
-    def update_last_sync_dated(self, df_updates: DataFrame):
+    def update_sync_details(self, df_updates: DataFrame):
         metadata_table = DeltaTable.forName(
             self.spark_session, f"`{self.catalog}`.`{self.schema}`.`{self.table}`"
         )
@@ -140,7 +142,9 @@ class MetadataMappingRepository:
             )
             .whenMatchedUpdate(
                 set={
-                    "last_sync_dated": "updates.last_sync_dated"
+                    "sync_date": "updates.sync_date",
+                    "sync_status": "updates.sync_status",
+                    "sync_message": "updates.sync_message",
                 }
             )
             .execute()
