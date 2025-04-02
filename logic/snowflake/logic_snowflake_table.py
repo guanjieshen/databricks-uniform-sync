@@ -30,7 +30,7 @@ class SnowflakeTableLogic:
     ) -> str:
         # Return a formatted DDL string for creating an Iceberg table
         return f"""
-CREATE OR REPLACE ICEBERG TABLE {sf_database_name}.{sf_schema_name}.{sf_table_name}
+CREATE ICEBERG TABLE {sf_database_name}.{sf_schema_name}.{sf_table_name} IF NOT EXISTS
 CATALOG = '{sf_catalog_integration_name}'
 CATALOG_TABLE_NAME = '{db_table_name}'
 AUTO_REFRESH = {"TRUE" if auto_refresh else "FALSE"};

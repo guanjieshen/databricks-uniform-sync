@@ -279,4 +279,3 @@ class DatabricksToSnowflakeMirror:
             tables,
         )
         logger.info("Iceberg table creation process completed.")
-        # TODO: Update metadata table with updated dates

@@ -225,5 +225,6 @@ class MetadataMappingLogic:
             logger.info(f"Updating last sync date...")
             # Upsert the metadata table with the new DataFrame
             self.metadata_mapping_repository.update_last_sync_dated(df_updates)
+            ogger.info(f"Updating last sync date completed...")
         except Exception as e:
             logger.error(f"Error updating last sync date: {e}")
