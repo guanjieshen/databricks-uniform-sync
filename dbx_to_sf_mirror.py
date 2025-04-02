@@ -205,7 +205,9 @@ class DatabricksToSnowflakeMirror:
         )
         logger.info("All Catalog Integrations created...")
 
-    def generate_create_sf_iceberg_tables_sql(self, auto_refresh: bool = True) -> List[str]:
+    def generate_create_sf_iceberg_tables_sql(
+        self, auto_refresh: bool = True
+    ) -> List[str]:
         """
         Generate SQL for creating Snowflake tables.
 
@@ -226,6 +228,8 @@ class DatabricksToSnowflakeMirror:
         sf_private_key_file: str,
         sf_private_key_file_pwd: str,
         auto_refresh: bool = True,
+        create_database: bool = True,
+        create_schema: bool = True,
     ) -> None:
         """
         Create Iceberg tables in Snowflake.
@@ -236,9 +240,37 @@ class DatabricksToSnowflakeMirror:
             sf_private_key_file: Path to private key file.
             sf_private_key_file_pwd: Password for private key file.
             auto_refresh: Enable table auto-refresh (default: True).
+            create_database: Automatically create database (default: True).
+            create_schema: Automatically create schema (default: True).
         """
+
+        tables: List[SnowflakeIcebergTableDTO] = self.helpers.fetch_uc_tables(
+            auto_refresh
+        )
+
+        if create_database:
+            logger.info("Creating Snowflake databases...")
+            self.helpers.create_sf_databases(
+                sf_account_id,
+                sf_user,
+                sf_private_key_file,
+                sf_private_key_file_pwd,
+                tables,
+            )
+            logger.info("Snowflake databases created.")
+        if create_schema:
+            logger.info("Creating Snowflake schemas...")
+            self.helpers.create_sf_schemas(
+                sf_account_id,
+                sf_user,
+                sf_private_key_file,
+                sf_private_key_file_pwd,
+                tables,
+            )
+            logger.info("Snowflake schemas created.")
+
         logger.info("Creating Snowflake Iceberg tables...")
-        tables = self.helpers.fetch_uc_tables(auto_refresh)
+
         self.helpers.create_sf_tables(
             sf_account_id,
             sf_user,
@@ -246,5 +278,5 @@ class DatabricksToSnowflakeMirror:
             sf_private_key_file_pwd,
             tables,
         )
-        logger.info("Iceberg table   creation process completed.")
-        #TODO: Update metadata table with updated dates
+        logger.info("Iceberg table creation process completed.")
+        # TODO: Update metadata table with updated dates

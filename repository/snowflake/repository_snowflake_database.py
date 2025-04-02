@@ -1,70 +1,66 @@
-import snowflake.connector as snow
+import snowflake.connector
 from snowflake.core import Root
 from snowflake.snowpark import Session
 from snowflake.core.database._generated.models.database import DatabaseModel
 from snowflake.core.database import Database
 from snowflake.core.exceptions import ConflictError
+import logging
+from config.logging_config import setup_logging  # Import logging setup configuration
+
+# Initialize logging using the configured settings
+setup_logging()
+
+# Create a logger for this module
+logger = logging.getLogger("dbx_to_sf_mirror")
 
 class SnowflakeDatabaseRepository:
-    def __init__(self, account_id:str, username:str = None, password:str = None):
+    def __init__(      self,
+        account_id: str = None,
+        user: str = None,
+        private_key_file: str = None,
+        private_key_file_pwd: str = None,):
+        """
+        Initializes the repository with Snowflake connection credentials.
+
+        :param account_id: Snowflake account ID.
+        :param user: Snowflake username.
+        :param private_key_file: Path to the private key file for authentication.
+        :param private_key_file_pwd: Password for the private key file.
+        """
         self.account_id = account_id
-        self.username = username
-        self.password = password
+        self.user = user
+        self.private_key_file = private_key_file
+        self.private_key_file_pwd = private_key_file_pwd
 
-        # Define the connection parameters
-        connection_parameters = {
-            'account': account_id,
-            'user': username,
-            'password': password
+        # Connection parameters used for establishing a Snowflake session or direct connection.
+        self.connection_parameters = {
+            "account": account_id,
+            "user": user,
+            "private_key_file": private_key_file,
+            "private_key_file_pwd": private_key_file_pwd,
         }
-        # Create a connection to Snowflake for SQL
-        self.connection = snow.connect(
-            account=connection_parameters['account'],
-            user=connection_parameters['user'],
-            password=connection_parameters['password'],
 
-        )
-        # Create a session to Snowflake for Snowpark
-        session:Session = Session.builder.configs(connection_parameters).create()
-        self.root:Root = Root(session)
+        # Establish a direct connection to Snowflake using snowflake.connector.
+        self.connection = snowflake.connector.connect(**self.connection_parameters)
+
+        # Establish a Snowpark session for executing DataFrame-style operations.
+        self.session: Session = Session.builder.configs(
+            self.connection_parameters
+        ).create()
+
+        # Root object from Snowflake core API (useful for low-level operations).
+        self.root: Root = Root(self.session)
 
     #### Database Commands
-    # Snowflake Database is the equivalent of a Catalog in Unity Catalog
-    def get_database(self, database_name: str)->DatabaseModel:
-        #  The Python SDK does not return the database_id (does no incur compute costs)
-        my_db:DatabaseModel = self.root.databases[database_name].fetch()
-        print(my_db.name)
-
-    def get_database_with_id(self, database_name: str)->DatabaseModel:
-        try:
-            # Execute a SQL query against Snowflake to get the current_version
-            cursor = self.connection.cursor()
-            result = cursor.execute("SELECT * FROM unity_catalog.flights.airports")
-            one_row = result.fetchone()
-
-            # Fetch column names from the cursor's description attribute
-            column_names = [desc[0] for desc in cursor.description]
-
-            # Fetch one row of data
-            one_row = result.fetchone()
-
-            # Print the column names
-            print("Column Names:", column_names)
-
-            # Optionally print the row fetched
-            print("One Row:", one_row)
-        finally:
-            cursor.close()
-            self.connection.close()
 
     def create_database(self, database_name: str)->DatabaseModel:
         my_db = Database(name=database_name)
         try:
             self.root.databases.create(my_db)
-            print(f"Database: {database_name} created")
+            logger.info(f"Database: {database_name} created")
         except ConflictError as e:
             # Print the error type
-            print(f"Database: {database_name} already exists")
+            logger.info(f"Database: {database_name} already exists")
         except Exception as e:
             # Handle any other exceptions that occur
-            print(f"Caught a different error: {e}")
+            logger.error(f"Caught a different error: {e}")

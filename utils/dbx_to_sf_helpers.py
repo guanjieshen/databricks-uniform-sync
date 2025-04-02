@@ -1,9 +1,17 @@
 from typing import List
 from logic.snowflake.logic_snowflake_table import SnowflakeTableLogic
 from repository.snowflake.repository_snowflake import SnowflakeRepository
+from repository.snowflake.repository_snowflake_database import (
+    SnowflakeDatabaseRepository,
+)
+from repository.snowflake.repository_snowflake_schema import (
+    SnowflakeSchemaRepository,
+)
 from logic.snowflake.logic_snowflake_catalog_integration import (
     SnowflakeCatalogIntegrationLogic,
 )
+from logic.snowflake.logic_snowflake_database import SnowflakeDatabaseLogic
+from logic.snowflake.logic_snowflake_schema import SnowflakeSchemaLogic
 from logic.metadata.metadata_mapping_logic import MetadataMappingLogic
 from pyspark.sql import SparkSession
 from data_models.data_models import SnowflakeCatIntlDTO, SnowflakeIcebergTableDTO
@@ -40,6 +48,8 @@ class DatabricksToSnowflakeHelpers:
         )
         self.catalog_integration_logic = SnowflakeCatalogIntegrationLogic()
         self.table_logic = SnowflakeTableLogic()
+        self.database_logic = SnowflakeDatabaseLogic()
+        self.schema_logic = SnowflakeSchemaLogic()
 
     def _initialize_snowflake_repository(
         self,
@@ -60,6 +70,7 @@ class DatabricksToSnowflakeHelpers:
         Returns:
             SnowflakeRepository: Initialized Snowflake repository instance.
         """
+
         return SnowflakeRepository(
             account_id=account_id,
             user=user,
@@ -237,3 +248,48 @@ class DatabricksToSnowflakeHelpers:
                 db_table_name=item.uc_table_name,
                 auto_refresh=item.auto_refresh,
             )
+
+    def create_sf_databases(
+        self,
+        sf_account_id: str,
+        sf_user: str,
+        sf_private_key_file: str,
+        sf_private_key_file_pwd: str,
+        sf_table_dtos: List[SnowflakeIcebergTableDTO],
+    ):
+        """
+        Creates Snowflake databases based on metadata.
+        """
+        databases: list[str] = list(
+            {getattr(obj, "snowflake_database", None) for obj in sf_table_dtos}
+        )
+
+        repository = SnowflakeDatabaseRepository(
+            sf_account_id, sf_user, sf_private_key_file, sf_private_key_file_pwd
+        )
+        for database in databases:
+            self.database_logic.create_database(repository, database)
+
+    def create_sf_schemas(
+        self,
+        sf_account_id: str,
+        sf_user: str,
+        sf_private_key_file: str,
+        sf_private_key_file_pwd: str,
+        sf_table_dtos: List[SnowflakeIcebergTableDTO],
+    ):
+        """
+        Creates Snowflake databases based on metadata.
+        """
+        schemas: list[str] = list(
+            {getattr(obj, "snowflake_schema", None) for obj in sf_table_dtos}
+        )
+
+        repository = SnowflakeSchemaRepository(
+            sf_account_id, sf_user, sf_private_key_file, sf_private_key_file_pwd
+        )
+        for schema in schemas:
+            self.schema_logic.create_schema(repository, schema)
+            
+
+
