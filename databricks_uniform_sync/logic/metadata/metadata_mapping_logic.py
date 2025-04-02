@@ -195,6 +195,8 @@ class MetadataMappingLogic:
             )
             # Add a column for the last sync date (initially set to None)
             .withColumn("sync_date", lit(None))
+            .withColumn("sync_status", lit(None))
+            .withColumn("sync_message", lit(None))
         )
 
         try:
