@@ -60,7 +60,7 @@ AUTO_REFRESH = {"TRUE" if auto_refresh else "FALSE"};
         try:
             # Log the creation attempt for tracking and debugging
             logger.info(
-                f"Creating Iceberg Table: '{sf_database_name}.{sf_schema_name}.{sf_table_name}'"
+                f"Creating Iceberg Table (if not exist): '{sf_database_name}.{sf_schema_name}.{sf_table_name}'"
             )
 
             # Execute the DDL statement using the Snowflake repository
