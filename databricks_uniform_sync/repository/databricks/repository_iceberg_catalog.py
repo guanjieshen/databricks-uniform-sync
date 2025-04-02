@@ -1,9 +1,9 @@
 import requests
-from data_models.data_models import (
+
+from databricks_uniform_sync.data_models.data_models import (
     UnityCatalogIcebergSchema,
     UnityCatalogIcebergTables,
 )
-
 
 class IcebergCatalogRepository:
     def __init__(self, workspace_url, bearer_token):

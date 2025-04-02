@@ -1,19 +1,21 @@
 import logging
 from typing import List
-from pyspark.sql import Row, SparkSession, DataFrame
+
+from pyspark.sql import DataFrame, Row, SparkSession
 from pyspark.sql.functions import (
     abs as ps_abs,
     col,
+    collect_list,
     concat,
     current_timestamp,
     lit,
     struct,
     xxhash64,
-    collect_list,
 )
-from config.logging_config import setup_logging  # Import logging setup configuration
-from data_models.data_models import Catalog
-from repository.metadata.metadata_mapping_repository import MetadataMappingRepository
+
+from databricks_uniform_sync.config.logging_config import setup_logging  # Project logging setup
+from databricks_uniform_sync.data_models.data_models import Catalog
+from databricks_uniform_sync.repository.metadata.metadata_mapping_repository import MetadataMappingRepository
 
 # Initialize logging using the configured settings
 setup_logging()

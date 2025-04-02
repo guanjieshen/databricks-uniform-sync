@@ -1,11 +1,13 @@
+import logging
+
 import snowflake.connector
 from snowflake.core import Root
-from snowflake.snowpark import Session
-from snowflake.core.database._generated.models.database import DatabaseModel
 from snowflake.core.database import Database
+from snowflake.core.database._generated.models.database import DatabaseModel
 from snowflake.core.exceptions import ConflictError
-import logging
-from config.logging_config import setup_logging  # Import logging setup configuration
+from snowflake.snowpark import Session
+
+from databricks_uniform_sync.config.logging_config import setup_logging  # Project logging config
 
 # Initialize logging using the configured settings
 setup_logging()

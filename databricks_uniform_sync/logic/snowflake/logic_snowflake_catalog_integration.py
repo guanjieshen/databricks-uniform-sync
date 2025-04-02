@@ -1,12 +1,13 @@
+import logging
 from typing import Optional
-from repository.snowflake.repository_snowflake import (
+
+from snowflake.connector import ProgrammingError
+
+from databricks_uniform_sync.config.logging_config import setup_logging  # Project logging setup
+from databricks_uniform_sync.repository.snowflake.repository_snowflake import (
     SnowflakeRepository,
 )  # Custom repository for Snowflake operations
-from snowflake.connector import (
-    ProgrammingError,
-)  # Exception handling for Snowflake errors
-import logging
-from config.logging_config import setup_logging  # Import logging setup configuration
+
 
 # Initialize logging using the configured settings
 setup_logging()

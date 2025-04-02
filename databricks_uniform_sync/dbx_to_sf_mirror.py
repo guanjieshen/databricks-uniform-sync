@@ -1,14 +1,18 @@
 from typing import List, Optional
-from logic.databricks.logic_uc_mapping import UCMappingLogic
-from logic.databricks.logic_uc_tags import UCTagsLogic
-from data_models.data_models import (
+
+from pyspark.sql import SparkSession
+
+from databricks_uniform_sync.logic.databricks.logic_uc_mapping import UCMappingLogic
+from databricks_uniform_sync.logic.databricks.logic_uc_tags import UCTagsLogic
+from databricks_uniform_sync.logic.metadata.metadata_mapping_logic import MetadataMappingLogic
+
+from databricks_uniform_sync.data_models.data_models import (
     SnowflakeCatIntlDTO,
     SnowflakeIcebergTableDTO,
 )
-from logic.metadata.metadata_mapping_logic import MetadataMappingLogic
-from pyspark.sql import SparkSession
-from utils.dbx_to_sf_helpers import DatabricksToSnowflakeHelpers
-from config.logging_config import setup_logging
+
+from databricks_uniform_sync.utils.dbx_to_sf_helpers import DatabricksToSnowflakeHelpers
+from databricks_uniform_sync.config.logging_config import setup_logging
 
 # Initialize logging
 setup_logging()

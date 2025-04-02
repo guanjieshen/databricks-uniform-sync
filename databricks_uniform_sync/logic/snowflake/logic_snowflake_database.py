@@ -1,8 +1,9 @@
-from repository.snowflake.repository_snowflake_database import (
+import logging
+
+from databricks_uniform_sync.config.logging_config import setup_logging  # Project logging setup
+from databricks_uniform_sync.repository.snowflake.repository_snowflake_database import (
     SnowflakeDatabaseRepository,
 )
-import logging
-from config.logging_config import setup_logging  # Import logging setup configuration
 
 # Initialize logging using the configured settings
 setup_logging()

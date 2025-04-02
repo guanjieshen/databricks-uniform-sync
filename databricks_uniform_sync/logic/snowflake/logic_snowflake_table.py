@@ -1,10 +1,12 @@
-# Import necessary modules
-from typing import List
-from repository.snowflake.repository_snowflake import SnowflakeRepository  # Custom repository for Snowflake operations
-from concurrent.futures import ThreadPoolExecutor  # For concurrent execution of tasks
 import logging
-from config.logging_config import setup_logging  # Import logging setup configuration
-from snowflake.connector import ProgrammingError  # Exception handling for Snowflake errors
+from concurrent.futures import ThreadPoolExecutor
+from typing import List
+
+from snowflake.connector import ProgrammingError
+
+from databricks_uniform_sync.config.logging_config import setup_logging  # Project logging setup
+from databricks_uniform_sync.repository.snowflake.repository_snowflake import SnowflakeRepository  # Snowflake repository operations
+
 
 # Initialize logging using the configured settings
 setup_logging()

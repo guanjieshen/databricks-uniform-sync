@@ -1,7 +1,9 @@
-from pyspark.sql import SparkSession, DataFrame
-from delta.tables import *
 import logging
-from config.logging_config import setup_logging  # Import logging setup configuration
+
+from delta.tables import DeltaTable
+from pyspark.sql import DataFrame, SparkSession
+
+from databricks_uniform_sync.config.logging_config import setup_logging  # Project logging setup
 
 # Initialize logging using the configured settings
 setup_logging()

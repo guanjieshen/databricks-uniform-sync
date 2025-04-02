@@ -2,17 +2,20 @@ from typing import List
 
 from pyspark.sql import Row, SparkSession
 
-from data_models.data_models import SnowflakeCatIntlDTO, SnowflakeIcebergTableDTO
+from databricks_uniform_sync.data_models.data_models import (
+    SnowflakeCatIntlDTO,
+    SnowflakeIcebergTableDTO,
+)
 
-from logic.metadata.metadata_mapping_logic import MetadataMappingLogic
-from logic.snowflake.logic_snowflake_catalog_integration import SnowflakeCatalogIntegrationLogic
-from logic.snowflake.logic_snowflake_database import SnowflakeDatabaseLogic
-from logic.snowflake.logic_snowflake_schema import SnowflakeSchemaLogic
-from logic.snowflake.logic_snowflake_table import SnowflakeTableLogic
+from databricks_uniform_sync.logic.metadata.metadata_mapping_logic import MetadataMappingLogic
+from databricks_uniform_sync.logic.snowflake.logic_snowflake_catalog_integration import SnowflakeCatalogIntegrationLogic
+from databricks_uniform_sync.logic.snowflake.logic_snowflake_database import SnowflakeDatabaseLogic
+from databricks_uniform_sync.logic.snowflake.logic_snowflake_schema import SnowflakeSchemaLogic
+from databricks_uniform_sync.logic.snowflake.logic_snowflake_table import SnowflakeTableLogic
 
-from repository.snowflake.repository_snowflake import SnowflakeRepository
-from repository.snowflake.repository_snowflake_database import SnowflakeDatabaseRepository
-from repository.snowflake.repository_snowflake_schema import SnowflakeSchemaRepository
+from databricks_uniform_sync.repository.snowflake.repository_snowflake import SnowflakeRepository
+from databricks_uniform_sync.repository.snowflake.repository_snowflake_database import SnowflakeDatabaseRepository
+from databricks_uniform_sync.repository.snowflake.repository_snowflake_schema import SnowflakeSchemaRepository
 
 
 

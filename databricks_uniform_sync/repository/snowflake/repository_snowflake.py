@@ -1,8 +1,11 @@
+import logging
+
 import snowflake.connector
 from snowflake.core import Root
 from snowflake.snowpark import Session
-import logging
-from config.logging_config import setup_logging  # Import logging setup configuration
+
+from databricks_uniform_sync.config.logging_config import setup_logging  # Logging setup
+
 
 # Initialize logging using the configured settings
 setup_logging()

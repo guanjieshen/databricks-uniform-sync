@@ -1,5 +1,8 @@
-from repository.databricks.repository_unity_catalog import UnityCatalogRepository
 from pyspark.sql import SparkSession
+
+from databricks_uniform_sync.repository.databricks.repository_unity_catalog import (
+    UnityCatalogRepository,
+)
 
 
 class UCTagsLogic:

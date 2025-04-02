@@ -1,18 +1,23 @@
-from repository.databricks.repository_iceberg_catalog import (
-    IcebergCatalogRepository,
-)
-from repository.databricks.repository_unity_catalog import UnityCatalogRepository
+from typing import List
 
-from data_models.data_models import (
+from pyspark.sql import SparkSession
+
+from databricks.sdk.service.catalog import CatalogInfo, SchemaInfo, TableInfo
+
+from databricks_uniform_sync.data_models.data_models import (
     Catalog,
     Schema,
     Table,
     UnityCatalogIcebergSchema,
     UnityCatalogIcebergTables,
 )
-from typing import List
-from databricks.sdk.service.catalog import CatalogInfo, SchemaInfo, TableInfo
-from pyspark.sql import SparkSession
+
+from databricks_uniform_sync.repository.databricks.repository_iceberg_catalog import (
+    IcebergCatalogRepository,
+)
+from databricks_uniform_sync.repository.databricks.repository_unity_catalog import (
+    UnityCatalogRepository,
+)
 
 # Systems Schemas to exclude
 excluded_schemas = ["information_schema"]
