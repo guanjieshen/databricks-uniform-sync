@@ -281,15 +281,13 @@ class DatabricksToSnowflakeHelpers:
         """
         Creates Snowflake databases based on metadata.
         """
-        schemas: list[str] = list(
-            {getattr(obj, "snowflake_schema", None) for obj in sf_table_dtos}
-        )
+        schemas: list[str] = list({(obj.snowflake_database, obj.snowflake_schema) for obj in sf_table_dtos})
 
         repository = SnowflakeSchemaRepository(
             sf_account_id, sf_user, sf_private_key_file, sf_private_key_file_pwd
         )
-        for schema in schemas:
-            self.schema_logic.create_schema(repository, schema)
+        for database, schema in schemas:
+            self.schema_logic.create_schema(repository, database, schema)
             
 
 

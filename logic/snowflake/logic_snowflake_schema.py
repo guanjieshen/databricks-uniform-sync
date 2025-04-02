@@ -18,6 +18,7 @@ class SnowflakeSchemaLogic:
     def create_schema(
         self,
         snowflake_schema_repository: SnowflakeSchemaRepository,
+        database_name:str,
         schema_name: str,
     ):
-        snowflake_schema_repository.create_schema(schema_name)
+        snowflake_schema_repository.create_schema(database_name,schema_name)
