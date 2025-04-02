@@ -89,7 +89,7 @@ class SnowflakeIcebergTableDTO(BaseModel):
     """
     Data Transfer Object (DTO) for Snowflake Iceberg table.
     """
-    dbx_sf_uniform_metadata_id:str # Metadata ID associated with the table.
+    dbx_sf_uniform_metadata_id:int # Metadata ID associated with the table.
     catalog_integration_name: str          # Name of the external volume.
     uc_table_name: str  # Storage name associated with the external volume.
     snowflake_database: str                     # Identifier for the tenant.
