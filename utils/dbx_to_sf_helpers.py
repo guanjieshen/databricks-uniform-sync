@@ -1,21 +1,19 @@
 from typing import List
-from logic.snowflake.logic_snowflake_table import SnowflakeTableLogic
-from repository.snowflake.repository_snowflake import SnowflakeRepository
-from repository.snowflake.repository_snowflake_database import (
-    SnowflakeDatabaseRepository,
-)
-from repository.snowflake.repository_snowflake_schema import (
-    SnowflakeSchemaRepository,
-)
-from logic.snowflake.logic_snowflake_catalog_integration import (
-    SnowflakeCatalogIntegrationLogic,
-)
+
+from pyspark.sql import Row, SparkSession
+
+from data_models.data_models import SnowflakeCatIntlDTO, SnowflakeIcebergTableDTO
+
+from logic.metadata.metadata_mapping_logic import MetadataMappingLogic
+from logic.snowflake.logic_snowflake_catalog_integration import SnowflakeCatalogIntegrationLogic
 from logic.snowflake.logic_snowflake_database import SnowflakeDatabaseLogic
 from logic.snowflake.logic_snowflake_schema import SnowflakeSchemaLogic
-from logic.metadata.metadata_mapping_logic import MetadataMappingLogic
-from pyspark.sql import SparkSession
-from data_models.data_models import SnowflakeCatIntlDTO, SnowflakeIcebergTableDTO
-from pyspark.sql import Row
+from logic.snowflake.logic_snowflake_table import SnowflakeTableLogic
+
+from repository.snowflake.repository_snowflake import SnowflakeRepository
+from repository.snowflake.repository_snowflake_database import SnowflakeDatabaseRepository
+from repository.snowflake.repository_snowflake_schema import SnowflakeSchemaRepository
+
 
 
 class DatabricksToSnowflakeHelpers:
@@ -129,6 +127,7 @@ class DatabricksToSnowflakeHelpers:
         metadata_rows: List[Row] = self.metadata_mapping_logic.get_metadata_tables()
         return [
             SnowflakeIcebergTableDTO(
+                dbx_sf_uniform_metadata_id=row["dbx_sf_uniform_metadata_id"],
                 catalog_integration_name=row["snowflake_catalog_integration"],
                 uc_table_name=row["uc_table_name"],
                 snowflake_database=row["snowflake_database"],
@@ -238,16 +237,25 @@ class DatabricksToSnowflakeHelpers:
             sf_account_id, sf_user, sf_private_key_file, sf_private_key_file_pwd
         )
 
+        sucessful_metadata_ids:List[str] = []
+
         for item in sf_table_dtos:
-            self.table_logic.create_iceberg_table(
-                repository,
-                sf_database_name=item.snowflake_database,
-                sf_schema_name=item.snowflake_schema,
-                sf_table_name=item.snowflake_table,
-                sf_catalog_integration_name=item.catalog_integration_name,
-                db_table_name=item.uc_table_name,
-                auto_refresh=item.auto_refresh,
-            )
+            try:
+                self.table_logic.create_iceberg_table(
+                    repository,
+                    sf_database_name=item.snowflake_database,
+                    sf_schema_name=item.snowflake_schema,
+                    sf_table_name=item.snowflake_table,
+                    sf_catalog_integration_name=item.catalog_integration_name,
+                    db_table_name=item.uc_table_name,
+                    auto_refresh=item.auto_refresh,
+                )
+                sucessful_metadata_ids.append(item.dbx_sf_uniform_metadata_id)
+            except Exception as e:
+                pass
+        self.metadata_mapping_logic.update_metadata_last_sync_date(sucessful_metadata_ids)
+        
+        # Update the metadata table with the successful table IDs
 
     def create_sf_databases(
         self,

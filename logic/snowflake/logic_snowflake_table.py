@@ -69,6 +69,8 @@ AUTO_REFRESH = {"TRUE" if auto_refresh else "FALSE"};
         except ProgrammingError as e:
             # Handle SQL compilation errors specific to Snowflake
             logger.error(f"SQL compilation error: {e}")
+            raise ValueError("SQL compilation error: {e}")
         except Exception as e:
             # Handle any other unexpected exceptions
             logger.exception(f"Error executing DDL: {e}")
+            raise ValueError("SQL compilation error: {e}")

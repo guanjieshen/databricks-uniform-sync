@@ -1,26 +1,26 @@
+import logging
 from typing import List
-from pyspark.sql import SparkSession, DataFrame
-from data_models.data_models import Catalog
-from repository.metadata.metadata_mapping_repository import MetadataMappingRepository
-from pyspark.sql.functions import xxhash64, lit
-from pyspark.sql.functions import collect_list, struct
-from pyspark.sql import Row
+from pyspark.sql import Row, SparkSession, DataFrame
 from pyspark.sql.functions import (
-    xxhash64,
-    lit,
     abs as ps_abs,
-    regexp_extract,
     col,
     concat,
+    current_timestamp,
+    lit,
+    struct,
+    xxhash64,
+    collect_list,
 )
-import logging
 from config.logging_config import setup_logging  # Import logging setup configuration
+from data_models.data_models import Catalog
+from repository.metadata.metadata_mapping_repository import MetadataMappingRepository
 
 # Initialize logging using the configured settings
 setup_logging()
 
 # Create a logger for this module
 logger = logging.getLogger("dbx_to_sf_mirror")
+
 
 class MetadataMappingLogic:
     """
@@ -136,6 +136,7 @@ class MetadataMappingLogic:
             .select(
                 collect_list(
                     struct(
+                        "dbx_sf_uniform_metadata_id",
                         "snowflake_catalog_integration",
                         "uc_table_name",
                         "snowflake_database",
@@ -201,3 +202,28 @@ class MetadataMappingLogic:
             self.metadata_mapping_repository.upsert_metadata_table(df_updates)
         except Exception as e:
             logger.error(f"Error updating metadata table: {e}")
+
+    def update_metadata_last_sync_date(self, metadata_ids: List[str]):
+        """
+        Update the last sync date in the metadata table
+
+        Args:
+            metadata_ids ( List[str]): List of IDs to update
+        """
+        rows = [
+            {
+                "dbx_sf_uniform_metadata_id": metadata_id,
+            }
+            for metadata_id in metadata_ids
+        ]
+
+        # Create Spark DataFrame from the flattened rows
+        df_updates: DataFrame = self.spark_session.createDataFrame(rows).withColumn(
+            "last_sync_dated", current_timestamp()
+        )
+        try:
+            logger.info(f"Updating last sync date...")
+            # Upsert the metadata table with the new DataFrame
+            self.metadata_mapping_repository.update_last_sync_dated(df_updates)
+        except Exception as e:
+            logger.error(f"Error updating last sync date: {e}")

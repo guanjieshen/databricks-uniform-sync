@@ -124,3 +124,22 @@ class MetadataMappingRepository:
             .whenNotMatchedInsertAll()
             .execute()
         )
+    
+    def update_last_sync_dated(self, df_updates: DataFrame):
+        metadata_table = DeltaTable.forName(
+            self.spark_session, f"`{self.catalog}`.`{self.schema}`.`{self.table}`"
+        )
+
+        (
+            metadata_table.alias("target")
+            .merge(
+                df_updates.alias("updates"),
+                "target.dbx_sf_uniform_metadata_id = updates.dbx_sf_uniform_metadata_id",
+            )
+            .whenMatchedUpdate(
+                set={
+                    "last_sync_dated": "updates.last_sync_dated"
+                }
+            )
+            .execute()
+        )
