@@ -38,7 +38,7 @@ class MetadataMappingRepository:
                         snowflake_catalog_integration STRING,
                         sync_date TIMESTAMP,
                         sync_status STRING,
-                        sync_message STRING,)
+                        sync_message STRING)
                         USING delta
                         COMMENT 'The`dbx_sf_uniform_metadata` table contains metadata information. 
 
