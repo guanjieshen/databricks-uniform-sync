@@ -1,6 +1,10 @@
 from typing import Optional
-from repository.snowflake.repository_snowflake import SnowflakeRepository  # Custom repository for Snowflake operations
-from snowflake.connector import ProgrammingError  # Exception handling for Snowflake errors
+from repository.snowflake.repository_snowflake import (
+    SnowflakeRepository,
+)  # Custom repository for Snowflake operations
+from snowflake.connector import (
+    ProgrammingError,
+)  # Exception handling for Snowflake errors
 import logging
 from config.logging_config import setup_logging  # Import logging setup configuration
 
@@ -9,6 +13,7 @@ setup_logging()
 
 # Create a logger for this module
 logger = logging.getLogger("dbx_to_sf_mirror")
+
 
 # Define a class to handle Snowflake catalog integration logic
 class SnowflakeCatalogIntegrationLogic:
@@ -83,15 +88,26 @@ class SnowflakeCatalogIntegrationLogic:
             repository.run_query(ddl)
 
             # Log successful creation
-            logger.info(f"Catalog Integration '{catalog_integration_name}' created successfully.")
+            logger.info(
+                f"Catalog Integration '{catalog_integration_name}' created successfully."
+            )
 
         except ProgrammingError as e:
-            # Handle SQL compilation errors specific to Snowflake
-            logger.error(f"SQL error creating catalog '{catalog_integration_name}': {e}")
-            return str(e)
+            error_message = str(e)
+            if "already exists" in error_message:
+                logger.info(
+                    f"Catalog '{catalog_integration_name}' already exists, skipping creation."
+                )
+            else:
+                logger.error(
+                    f"SQL error creating catalog '{catalog_integration_name}': {error_message}"
+                )
+            return error_message
+
         except Exception as e:
-            # Handle any other unexpected exceptions
-            logger.exception(f"Error executing DDL for catalog '{catalog_integration_name}': {e}")
+            logger.exception(
+                f"Error executing DDL for catalog '{catalog_integration_name}': {e}"
+            )
             return str(e)
 
         return None

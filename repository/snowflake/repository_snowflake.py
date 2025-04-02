@@ -1,6 +1,14 @@
 import snowflake.connector
 from snowflake.core import Root
 from snowflake.snowpark import Session
+import logging
+from config.logging_config import setup_logging  # Import logging setup configuration
+
+# Initialize logging using the configured settings
+setup_logging()
+
+# Create a logger for this module
+logger = logging.getLogger("dbx_to_sf_mirror")
 
 
 class SnowflakeRepository:
@@ -64,5 +72,5 @@ class SnowflakeRepository:
                 result = cursor.fetchall()
                 return result
         except Exception as e:
-            print(f"Failed to execute query: {e}")
-            return []
+            logger.error(f"Failed to execute query: {e}")
+            raise
