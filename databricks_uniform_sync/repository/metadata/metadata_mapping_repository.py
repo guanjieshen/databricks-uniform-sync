@@ -144,6 +144,7 @@ class MetadataMappingRepository:
             )
             .whenMatchedUpdate(
                 set={
+                    "snowflake_account_id": "updates.snowflake_account_id",
                     "sync_date": "updates.sync_date",
                     "sync_status": "updates.sync_status",
                     "sync_message": "updates.sync_message",
