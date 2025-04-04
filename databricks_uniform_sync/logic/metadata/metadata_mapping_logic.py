@@ -194,6 +194,7 @@ class MetadataMappingLogic:
                 ),
             )
             # Add a column for the last sync date (initially set to None)
+            .withColumn("snowflake_account_id", lit(None))
             .withColumn("sync_date", lit(None))
             .withColumn("sync_status", lit(None))
             .withColumn("sync_message", lit(None))
@@ -215,6 +216,7 @@ class MetadataMappingLogic:
         rows = [
             {
                 "dbx_sf_uniform_metadata_id": item.dbx_sf_uniform_metadata_id,
+                "snowflake_account_id": item.snowflake_account_id,
                 "sync_status": item.sync_status,
                 "sync_message": item.sync_message,
             }

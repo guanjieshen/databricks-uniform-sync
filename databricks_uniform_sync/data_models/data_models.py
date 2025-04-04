@@ -102,5 +102,6 @@ class SyncStatusDTO(BaseModel):
     Data Transfer Object for synchronization status.
     """
     dbx_sf_uniform_metadata_id: int  # Metadata ID associated with the table.
+    snowflake_account_id: str           # Snowflake account identifier.
     sync_status: str                  # Status of the synchronization process.
     sync_message: str                 # Message providing details about the synchronization status.

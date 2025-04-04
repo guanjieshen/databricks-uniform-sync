@@ -129,12 +129,14 @@ class DatabricksToSnowflakeHelpers:
                 )
                 sync_statuses.append(SyncStatusDTO(
                     dbx_sf_uniform_metadata_id=item.dbx_sf_uniform_metadata_id,
+                    snowflake_account_id=sf_account_id,
                     sync_status="success",
                     sync_message=f"Table '{item.snowflake_table}' created successfully."
                 ))
             except Exception as e:
                 sync_statuses.append(SyncStatusDTO(
                     dbx_sf_uniform_metadata_id=item.dbx_sf_uniform_metadata_id,
+                    snowflake_account_id=sf_account_id,
                     sync_status="failed",
                     sync_message=str(e)
                 ))
