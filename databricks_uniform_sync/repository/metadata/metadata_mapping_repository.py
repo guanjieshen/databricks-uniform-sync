@@ -65,7 +65,8 @@ class MetadataMappingRepository:
                             p.snowflake_schema,
                             p.snowflake_table,
                             p.snowflake_uniform_sync,
-                            CONCAT(
+                        CASE
+                            WHEN a.sync_status = 'success' THEN CONCAT(
                                 'https://app.snowflake.com/',
                                 LOWER(SPLIT(a.snowflake_account_id, '-')[0]), '/', 
                                 LOWER(SPLIT(a.snowflake_account_id, '-')[1]), 
@@ -73,7 +74,9 @@ class MetadataMappingRepository:
                                 UPPER(p.snowflake_database), '/schemas/',
                                 UPPER(p.snowflake_schema), '/table/',
                                 UPPER(p.snowflake_table)
-                            ) AS snowflake_link
+                            )
+                            ELSE NULL
+                        END AS snowflake_link
                             FROM
                             `{self.catalog}`.`{self.schema}`.`{self.table}` a
                             LEFT JOIN (
