@@ -219,8 +219,7 @@ d2s.create_sf_iceberg_tables_sql(
 
 ## Example Usage
 
-_Coming soon._  
-A demo notebook or script will be added to show end-to-end execution.
+Here's an [example notebook](https://github.com/guanjieshen/databricks-uniform-sync/blob/main/example_notebook.ipynb) on how how to use this library
 
 ---
 
