@@ -64,7 +64,16 @@ class MetadataMappingRepository:
                             p.snowflake_database,
                             p.snowflake_schema,
                             p.snowflake_table,
-                            p.snowflake_uniform_sync
+                            p.snowflake_uniform_sync,
+                            CONCAT(
+                                'https://app.snowflake.com/',
+                                LOWER(SPLIT(a.snowflake_account_id, '-')[0]), '/', 
+                                LOWER(SPLIT(a.snowflake_account_id, '-')[1]), 
+                                '/#/data/databases/',
+                                UPPER(p.snowflake_database), '/schemas/',
+                                UPPER(p.snowflake_schema), '/table/',
+                                UPPER(p.snowflake_table)
+                            ) AS snowflake_link
                             FROM
                             `{self.catalog}`.`{self.schema}`.`{self.table}` a
                             LEFT JOIN (
