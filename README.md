@@ -7,11 +7,11 @@
 
 This repository provides a utility to **synchronize (mirror) Iceberg table metadata** from **Databricks Unity Catalog** to **Snowflake Horizon**.
 
-It automates the creation of:
-- Snowflake Catalog Integrations
+It automates the creation of the following assets in Snowflake:
+- Catalog Integrations (using Credential Vending)
 - External Iceberg Tables
 
-> Note: This library uses **credential vending** to access cloud storage. Snowflake External Volumes are **not** required.
+> Note: As this library uses **credential vending** to access cloud storage. Snowflake External Volumes are **not** required.
 
 ---
 
@@ -41,19 +41,64 @@ This utility automates the following tasks:
 
 ## Snowflake Setup
 
-This utility supports two usage patterns:
+This library supports two usage patterns:
 
-- Manual: Generate DDLs for execution in Snowflake
+- Manual: Generate DDLs for manual execution in Snowflake
 - Automated: Create Snowflake assets directly from Databricks
 
-Required Snowflake permissions:
+In order to use the _automated_ approach, configure a Snowflake Service Account using __[key-pair authentication](https://docs.snowflake.com/en/user-guide/key-pair-auth)__.
+
+>Make sure the private RSA key is saved, as the library will need this to connect to Snowflake.
+
+For example, in Snowflake:
+
+```sql
+CREATE USER databricks_service_account
+CREATE USER databricks_service_account
+  COMMENT = 'Service account for Databricks using RSA key-pair authentication'
+  DEFAULT_ROLE = ACCOUNTADMIN
+  DEFAULT_WAREHOUSE = <YOUR_DEFAULT_WAREHOUSE>
+  RSA_PUBLIC_KEY = <RSA_PUBLIC_KEY>
+```
+Ensure the Snowflake Role assigned to the service account has the following Snowflake privileges:
 
 - Create Catalog Integrations
 - Create External Iceberg Tables
+- [Optional] Create Database 
+- [Optional] Create Schema 
 
 ---
 
-## Databricks Setup
+
+
+## Databricks Setup 
+
+The following configurations are required regardless of which usage pattern (manual or automated) is leveraged.
+
+##### Unity Catalog Metastore Configuration
+In order to support external engines, you will need to __[enable external data access to Unity Catalog](https://docs.databricks.com/aws/en/external-access/admin)__
+
+![UC Permissions](img/external_data_access.png)
+
+
+
+##### Service Principal Configuration
+In order to configure the Snowflake Catalog Integration, a __[Databricks Service Principal](https://docs.databricks.com/aws/en/admin/users-groups/service-principals#add-a-service-principal-to-a-workspace-using-the-workspace-admin-settings)__ is required for Snowflake to authenticate to the Unity Catalog APIs.
+
+>Make sure the client id and client secret are saved, as the library will need this to connect to create the catalog integration.
+
+ Using the Service Principal created above, add the following permissions for the Service Principal to any catalogs that will need to be syncronized to Snowflake Horizon.
+
+- EXTERNAL USE SCHEMA
+- SELECT
+- USE CATALOG
+- USE SCHEMA
+
+![UC Permissions](img/uc_permissions.png)
+
+---
+
+## How to Use
 
 Install the library:
 
@@ -74,10 +119,6 @@ d2s = DatabricksToSnowflakeMirror(
     metadata_schema="dbx_sf_mirror_schema"
 )
 ```
-
----
-
-## How to Use
 
 ### 1. Create or Refresh Metadata Tables
 
