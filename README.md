@@ -23,8 +23,9 @@ It automates the creation of the following assets in Snowflake:
 4. [How to Use](#how-to-use)
 5. [Configuration](#configuration)
 6. [Parameter Reference](#parameter-reference)
-7. [Example Usage](#example-usage)
-8. [Limitations](#limitations)
+7. [Metadata Columns](#metadata-columns)
+8. [Example Usage](#example-usage)
+9. [Limitations](#limitations)
 
 ---
 
@@ -39,7 +40,6 @@ This utility automates the following tasks:
 
 The metadata tables will contain information on what assets in Snowflake have been created, and provide a status on the syncronization state.
 
-![metadata_table](img/metadata_table.png)
 
 
 ---
@@ -125,29 +125,69 @@ d2s = DatabricksToSnowflakeMirror(
 )
 ```
 
+_Ensure that the metadata_catalog and metadata_schema already exist within Unity Catalog._
+
 ### 1. Create or Refresh Metadata Tables
+The following  command will create the metadata tables in the location specified in `DatabricksToSnowflakeMirror`.
 
 ```python
 d2s.create_metadata_tables()
+```
+The following command will automatically locate Iceberg compatible tables within `your_catalog`.
+```python
 d2s.refresh_metadata_tables(catalog="your_catalog")
 ```
 
-These methods are idempotent and safe to rerun.  
 If metadata tables do not exist, `refresh_metadata_tables()` will create them.
+
+
+> 💡 **Tip**: These methods are idempotent and are safe to rerun.
+---
+### 2. Check the Metadata View
+You can validate the contents of the metadata tables using:
+
+```sql
+SELECT * FROM dbx_sf_mirror_catalog.dbx_sf_mirror_schema.dbx_sf_uniform_metadata_vw;
+```
+![metadata_table](img/metadata_table.png)
 
 ---
 
-### 2. Add Unity Catalog Discovery Tags
+### 3. Add Unity Catalog Discovery Tags
+
+This command will automatically add Unity Catalog discovery tags to all of the tables identified in Step 1.
 
 ```python
 d2s.refresh_uc_metadata_tags()
 ```
 
-These tags are used to determine sync eligibility. Do not remove them.
+> ⚠️ **Warning**: These tags are used to determine sync eligibility. Do not remove them. 
 
 ---
 
-### 3. Create Snowflake Catalog Integrations
+### 4. Update Unity Catalog Discovery Tags
+
+Four discovery tags are automatically created for each table. These can be used to apply a custom mapping to Snowflake. 
+
+- __snowflake_database:__ Mirrored Snowflake database name
+- __snowflake_schema:__ Mirrored Snowflake schema name
+- __snowflake_table:__ Mirrored Snowflake table name
+- __snowflake_uniform_sync:__ `true` or `false` 
+
+
+![discovery_tags](img/discovery_tags.png)
+
+SQL can also be used to perform  updates to tags:
+
+```sql
+ALTER TABLE your_catalog.your_schema.your_table
+SET TAGS ('snowflake_uniform_sync' = 'false');
+```
+
+---
+
+
+### 5. Create Snowflake Catalog Integrations
 
 Dry run (SQL only):
 
@@ -158,7 +198,7 @@ d2s.generate_create_sf_catalog_integrations_sql(
 )
 ```
 
-Execute directly:
+Create catalog integrations within Snowflake:
 
 ```python
 d2s.create_sf_catalog_integrations(
@@ -183,7 +223,7 @@ Dry run (SQL generation only):
 d2s.generate_create_sf_iceberg_tables_sql()
 ```
 
-Execute directly:
+Create iceberg tables within Snowflake:
 
 ```python
 d2s.create_sf_iceberg_tables(
@@ -199,7 +239,7 @@ d2s.create_sf_iceberg_tables(
 
 ## Configuration
 
-### Custom Metadata Table Name
+### Custom Metadata Table & View Name
 
 ```python
 d2s = DatabricksToSnowflakeMirror(
@@ -265,7 +305,31 @@ d2s.create_sf_iceberg_tables_sql(
 | `auto_refresh` (optional) | Enable/disable automatic refresh on tables |
 
 ---
+## Metadata View Columns 
 
+| Column                          | Description                                                  |
+|----------------------------------|--------------------------------------------------------------|
+| `dbx_sf_uniform_metadata_id`     | Unique identifier for the metadata record (BIGINT)           |
+| `uc_catalog_id`                  | ID of the Unity Catalog catalog (STRING)                     |
+| `uc_catalog_name`                | Name of the Unity Catalog catalog (STRING)                   |
+| `uc_schema_id`                   | ID of the Unity Catalog schema (STRING)                      |
+| `uc_schema_name`                 | Name of the Unity Catalog schema (STRING)                    |
+| `uc_table_id`                    | ID of the Unity Catalog table (STRING)                       |
+| `uc_table_name`                  | Name of the Unity Catalog table (STRING)                     |
+| `table_location`                 | Storage location of the table (STRING)                       |
+| `table_type`                     | Type of the table (e.g., MANAGED, EXTERNAL) (STRING)         |
+| `snowflake_catalog_integration` | Name of the Snowflake catalog integration (STRING)           |
+| `snowflake_account_id`          | Account identifier for the Snowflake instance (STRING)       |
+| `sync_date`                      | Timestamp of the last synchronization attempt (TIMESTAMP)    |
+| `sync_status`                    | Status of the sync (e.g., SUCCESS, FAILED) (STRING)          |
+| `sync_message`                   | Additional message or error detail about sync (STRING)       |
+| `snowflake_database`            | Target Snowflake database name (STRING)                      |
+| `snowflake_schema`              | Target Snowflake schema name (STRING)                        |
+| `snowflake_table`               | Target Snowflake table name (STRING)                         |
+| `snowflake_uniform_sync`        | Indicates if uniform sync is enabled (e.g., TRUE/FALSE)      |
+| `snowflake_link`                | URL or identifier linking to the Snowflake table (STRING)    |
+
+---
 ## Example Usage
 
 Here's an [example notebook](https://github.com/guanjieshen/databricks-uniform-sync/blob/main/example_notebook.ipynb) on how how to use this library
