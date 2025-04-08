@@ -65,12 +65,12 @@ CREATE USER databricks_service_account
   DEFAULT_WAREHOUSE = <YOUR_DEFAULT_WAREHOUSE>
   RSA_PUBLIC_KEY = <RSA_PUBLIC_KEY>
 ```
-Ensure the Snowflake Role assigned to the service account has the following Snowflake privileges:
+Ensure the Snowflake Role assigned to the service account has the following privileges:
 
 - Create Catalog Integrations
 - Create External Iceberg Tables
-- [Optional] Create Database 
-- [Optional] Create Schema 
+- Create Database 
+- Create Schema 
 
 ---
 
@@ -92,7 +92,7 @@ In order to configure the Snowflake Catalog Integration, a __[Databricks Service
 
 >Make sure the client id and client secret are saved, as the library will need this to connect to create the catalog integration.
 
- Using the Service Principal created above, add the following permissions for the Service Principal to any catalogs that will need to be syncronized to Snowflake Horizon.
+ Using the Service Principal created above, add the following permissions for the Service Principal to any catalogs that will need to be synchronized to Snowflake Horizon.
 
 - EXTERNAL USE SCHEMA
 - SELECT
@@ -125,10 +125,10 @@ d2s = DatabricksToSnowflakeMirror(
 )
 ```
 
-_Ensure that the metadata_catalog and metadata_schema already exist within Unity Catalog._
+_Ensure that the metadata catalog and metadata schema already exist within Unity Catalog._
 
 ### 1. Create or Refresh Metadata Tables
-The following  command will create the metadata tables in the location specified in `DatabricksToSnowflakeMirror`.
+The following  command will create the metadata table and view in the location specified in `DatabricksToSnowflakeMirror`.
 
 ```python
 d2s.create_metadata_tables()
@@ -144,7 +144,7 @@ If metadata tables do not exist, `refresh_metadata_tables()` will create them.
 > 💡 **Tip**: These methods are idempotent and are safe to rerun.
 ---
 ### 2. Check the Metadata View
-You can validate the contents of the metadata tables using:
+You can validate the comaptible tables by querying the metadata view:
 
 ```sql
 SELECT * FROM dbx_sf_mirror_catalog.dbx_sf_mirror_schema.dbx_sf_uniform_metadata_vw;
@@ -177,7 +177,7 @@ Four discovery tags are automatically created for each table. These can be used 
 
 ![discovery_tags](img/discovery_tags.png)
 
-SQL can also be used to perform  updates to tags:
+SQL can also be used to perform updates to the tags:
 
 ```sql
 ALTER TABLE your_catalog.your_schema.your_table
@@ -300,7 +300,7 @@ d2s.create_sf_iceberg_tables_sql(
 | `sf_private_key_file` | Path to RSA private key |
 | `sf_private_key_file_pwd` | Password to decrypt RSA key |
 | `oauth_client_id` | Databricks Service Principal client ID |
-| `oauth_client_secret` | Databricks OAuth Service Principal secret |
+| `oauth_client_secret` | Databricks Service Principal secret |
 | `refresh_interval_seconds` (optional) | Catalog Integration refresh interval |
 | `auto_refresh` (optional) | Enable/disable automatic refresh on tables |
 
