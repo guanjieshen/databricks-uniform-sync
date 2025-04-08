@@ -23,7 +23,7 @@ It automates the creation of the following assets in Snowflake:
 4. [How to Use](#how-to-use)
 5. [Configuration](#configuration)
 6. [Parameter Reference](#parameter-reference)
-7. [Metadata Columns](#metadata-columns)
+7. [Metadata View Columns](#metadata-view-columns)
 8. [Example Usage](#example-usage)
 9. [Limitations](#limitations)
 
