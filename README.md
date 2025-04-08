@@ -11,7 +11,7 @@ It automates the creation of the following assets in Snowflake:
 - Catalog Integrations (using Credential Vending)
 - External Iceberg Tables
 
-> Note: As this library uses **credential vending** to access cloud storage. Snowflake External Volumes are **not** required.
+> Note: As this library uses **credential vending** to access cloud storage. Snowflake External Volumes are not required.
 
 ---
 
@@ -36,6 +36,11 @@ This utility automates the following tasks:
 - Generates Delta-based metadata tables in Databricks  
 - Creates Catalog Integrations in Snowflake  
 - Creates External Iceberg Tables in Snowflake  
+
+The metadata tables will contain information on what assets in Snowflake have been created, and provide a status on the syncronization state.
+
+![metadata_table](img/metadata_table.png)
+
 
 ---
 
@@ -165,12 +170,14 @@ d2s.create_sf_catalog_integrations(
     oauth_client_secret="client-secret"
 )
 ```
+⚠️ Warning: Do not cancel the `create_sf_catalog_integrations` mid-exeuction.
+
 
 ---
 
 ### 4. Create Iceberg Tables in Snowflake
 
-Dry run:
+Dry run (SQL generation only):
 
 ```python
 d2s.generate_create_sf_iceberg_tables_sql()
@@ -179,13 +186,14 @@ d2s.generate_create_sf_iceberg_tables_sql()
 Execute directly:
 
 ```python
-d2s.create_sf_iceberg_tables_sql(
+d2s.create_sf_iceberg_tables(
     sf_account_id="xyz-123",
     sf_user="svc_name",
     sf_private_key_file="rsa/rsa_key.p8",
     sf_private_key_file_pwd="your-password"
 )
 ```
+⚠️ **Warning**: If  `create_sf_iceberg_tables` is cancelled mid-execution, the metadata table will not update with the status of the sync.
 
 ---
 
@@ -251,8 +259,8 @@ d2s.create_sf_iceberg_tables_sql(
 | `sf_user` | Snowflake user/service account |
 | `sf_private_key_file` | Path to RSA private key |
 | `sf_private_key_file_pwd` | Password to decrypt RSA key |
-| `oauth_client_id` | Databricks OAuth client ID |
-| `oauth_client_secret` | Databricks OAuth client secret |
+| `oauth_client_id` | Databricks Service Principal client ID |
+| `oauth_client_secret` | Databricks OAuth Service Principal secret |
 | `refresh_interval_seconds` (optional) | Catalog Integration refresh interval |
 | `auto_refresh` (optional) | Enable/disable automatic refresh on tables |
 
@@ -267,7 +275,7 @@ Here's an [example notebook](https://github.com/guanjieshen/databricks-uniform-s
 ## Limitations
 
 - Only supports Iceberg tables on S3  
-- Deleting tables in Unity Catalog does not remove them in Snowflake  
+- Does not support synchronizing deletes between UC and Snowflake.
 - Only supports RSA key pair authentication (Snowflake MFA compliance)
 
 ---
