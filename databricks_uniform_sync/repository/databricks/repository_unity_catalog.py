@@ -71,6 +71,7 @@ class UnityCatalogRepository:
                 'snowflake_database' = '{catalog_name}',
                 'snowflake_schema' = '{schema_name}',
                 'snowflake_table' = '{table_name}',
+                'snowflake_ext_vol= '',
                 'snowflake_uniform_sync' = 'true'
             );
             """

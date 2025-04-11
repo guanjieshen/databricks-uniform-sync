@@ -65,6 +65,7 @@ class MetadataMappingRepository:
                             p.snowflake_schema,
                             p.snowflake_table,
                             p.snowflake_uniform_sync,
+                            p.snowflake_ext_vol,
                         CASE
                             WHEN a.sync_status = 'success' THEN CONCAT(
                                 'https://app.snowflake.com/',
@@ -87,7 +88,8 @@ class MetadataMappingRepository:
                                 MAX(CASE WHEN tag_name = 'snowflake_database' THEN tag_value END) AS snowflake_database,
                                 MAX(CASE WHEN tag_name = 'snowflake_schema' THEN tag_value END) AS snowflake_schema,
                                 MAX(CASE WHEN tag_name = 'snowflake_table' THEN tag_value END) AS snowflake_table,
-                                MAX(CASE WHEN tag_name = 'snowflake_uniform_sync' THEN tag_value END) AS snowflake_uniform_sync
+                                MAX(CASE WHEN tag_name = 'snowflake_uniform_sync' THEN tag_value END) AS snowflake_uniform_sync,
+                                MAX(CASE WHEN tag_name = 'snowflake_ext_vol' THEN tag_value END) AS snowflake_ext_vol
                                 FROM
                                 system.information_schema.table_tags
                                 GROUP BY
