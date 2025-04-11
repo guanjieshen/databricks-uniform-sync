@@ -23,20 +23,28 @@ class SnowflakeTableLogic:
     # Method to generate a DDL (Data Definition Language) statement for creating an Iceberg table
     def generate_ddl(
         self,
-        sf_database_name: str,  # Snowflake database name
-        sf_schema_name: str,  # Snowflake schema name
-        sf_table_name: str,  # Snowflake table name
+        sf_database_name: str,            # Snowflake database name
+        sf_schema_name: str,              # Snowflake schema name
+        sf_table_name: str,               # Snowflake table name
         sf_catalog_integration_name: str,  # Catalog integration name
-        db_table_name: str,  # External table name in catalog
-        auto_refresh: bool,  # Whether to enable auto-refresh of the table
+        db_table_name: str,               # External table name in catalog
+        auto_refresh: bool,               # Whether to enable auto-refresh of the table
+        sf_external_volume_name: str = None,     # External volume name (optional)
     ) -> str:
-        # Return a formatted DDL string for creating an Iceberg table
-        return f"""
-CREATE ICEBERG TABLE {sf_database_name}.{sf_schema_name}.{sf_table_name} IF NOT EXISTS
-CATALOG = '{sf_catalog_integration_name}'
-CATALOG_TABLE_NAME = '{db_table_name}'
-AUTO_REFRESH = {"TRUE" if auto_refresh else "FALSE"};
-        """
+        # Base DDL command
+        ddl = f"CREATE ICEBERG TABLE {sf_database_name}.{sf_schema_name}.{sf_table_name} IF NOT EXISTS\n"
+
+        # Optionally include EXTERNAL_VOLUME
+        if sf_external_volume_name:
+            ddl += f"EXTERNAL_VOLUME = '{sf_external_volume_name}'\n"
+
+        # Append the rest of the DDL
+        ddl += f"""CATALOG = '{sf_catalog_integration_name}'
+    CATALOG_TABLE_NAME = '{db_table_name}'
+    AUTO_REFRESH = {"TRUE" if auto_refresh else "FALSE"};"""
+
+        return ddl
+
 
     # Method to create an Iceberg table in Snowflake using the generated DDL statement
     def create_iceberg_table(
@@ -48,6 +56,7 @@ AUTO_REFRESH = {"TRUE" if auto_refresh else "FALSE"};
         sf_catalog_integration_name: str,  # Catalog integration name
         db_table_name: str,  # External table name in catalog
         auto_refresh: bool,  # Whether to enable auto-refresh of the table
+        sf_external_volume_name: str = None     # External volume name (optional)
     ):
         # Generate the DDL statement using the provided parameters
         ddl = self.generate_ddl(
@@ -57,6 +66,7 @@ AUTO_REFRESH = {"TRUE" if auto_refresh else "FALSE"};
             sf_catalog_integration_name=sf_catalog_integration_name,
             db_table_name=db_table_name,
             auto_refresh=auto_refresh,
+            sf_external_volume_name = sf_external_volume_name
         )
 
         try:

@@ -5,20 +5,36 @@ from pyspark.sql import Row, SparkSession
 from databricks_uniform_sync.data_models.data_models import (
     SnowflakeCatIntlDTO,
     SnowflakeIcebergTableDTO,
-    SyncStatusDTO
+    SyncStatusDTO,
 )
 
 # Logic layers
-from databricks_uniform_sync.logic.metadata.metadata_mapping_logic import MetadataMappingLogic
-from databricks_uniform_sync.logic.snowflake.logic_snowflake_catalog_integration import SnowflakeCatalogIntegrationLogic
-from databricks_uniform_sync.logic.snowflake.logic_snowflake_database import SnowflakeDatabaseLogic
-from databricks_uniform_sync.logic.snowflake.logic_snowflake_schema import SnowflakeSchemaLogic
-from databricks_uniform_sync.logic.snowflake.logic_snowflake_table import SnowflakeTableLogic
+from databricks_uniform_sync.logic.metadata.metadata_mapping_logic import (
+    MetadataMappingLogic,
+)
+from databricks_uniform_sync.logic.snowflake.logic_snowflake_catalog_integration import (
+    SnowflakeCatalogIntegrationLogic,
+)
+from databricks_uniform_sync.logic.snowflake.logic_snowflake_database import (
+    SnowflakeDatabaseLogic,
+)
+from databricks_uniform_sync.logic.snowflake.logic_snowflake_schema import (
+    SnowflakeSchemaLogic,
+)
+from databricks_uniform_sync.logic.snowflake.logic_snowflake_table import (
+    SnowflakeTableLogic,
+)
 
 # Repositories for Snowflake access
-from databricks_uniform_sync.repository.snowflake.repository_snowflake import SnowflakeRepository
-from databricks_uniform_sync.repository.snowflake.repository_snowflake_database import SnowflakeDatabaseRepository
-from databricks_uniform_sync.repository.snowflake.repository_snowflake_schema import SnowflakeSchemaRepository
+from databricks_uniform_sync.repository.snowflake.repository_snowflake import (
+    SnowflakeRepository,
+)
+from databricks_uniform_sync.repository.snowflake.repository_snowflake_database import (
+    SnowflakeDatabaseRepository,
+)
+from databricks_uniform_sync.repository.snowflake.repository_snowflake_schema import (
+    SnowflakeSchemaRepository,
+)
 
 
 class DatabricksToSnowflakeHelpers:
@@ -26,7 +42,13 @@ class DatabricksToSnowflakeHelpers:
     Helper class for syncing Unity Catalog metadata to Snowflake.
     """
 
-    def __init__(self, spark_session: SparkSession, metadata_catalog: str, metadata_schema: str, metadata_table: str):
+    def __init__(
+        self,
+        spark_session: SparkSession,
+        metadata_catalog: str,
+        metadata_schema: str,
+        metadata_table: str,
+    ):
         # Initialize dependencies for metadata mapping and Snowflake operations
         self.spark_session = spark_session
         self.metadata_mapping_logic = MetadataMappingLogic(
@@ -40,13 +62,30 @@ class DatabricksToSnowflakeHelpers:
         self.database_logic = SnowflakeDatabaseLogic()
         self.schema_logic = SnowflakeSchemaLogic()
 
-    def _initialize_snowflake_repository(self, account_id: str, user: str, private_key_file: str, private_key_file_pwd: str) -> SnowflakeRepository:
+    def _initialize_snowflake_repository(
+        self,
+        account_id: str,
+        user: str,
+        private_key_file: str,
+        private_key_file_pwd: str,
+    ) -> SnowflakeRepository:
         # Create and return Snowflake repository with auth details
-        return SnowflakeRepository(account_id, user, private_key_file, private_key_file_pwd)
+        return SnowflakeRepository(
+            account_id, user, private_key_file, private_key_file_pwd
+        )
 
-    def fetch_uc_catalog_integration(self, uc_endpoint: str, refresh_interval_seconds: int, oauth_client_id: str, oauth_client_secret: str) -> List[SnowflakeCatIntlDTO]:
+    def fetch_uc_catalog_integration(
+        self,
+        uc_endpoint: str,
+        refresh_interval_seconds: int,
+        oauth_client_id: str,
+        oauth_client_secret: str,
+        access_delgation_mode: str
+    ) -> List[SnowflakeCatIntlDTO]:
         # Extract catalog integration config from metadata table and construct DTOs
-        metadata_rows: List[Row] = self.metadata_mapping_logic.get_metadata_sf_catalog_integration()
+        metadata_rows: List[Row] = (
+            self.metadata_mapping_logic.get_metadata_sf_catalog_integration()
+        )
         return [
             SnowflakeCatIntlDTO(
                 catalog_integration_name=row["snowflake_catalog_integration"],
@@ -56,6 +95,7 @@ class DatabricksToSnowflakeHelpers:
                 refresh_interval_seconds=refresh_interval_seconds,
                 oauth_client_id=oauth_client_id,
                 oauth_client_secret=oauth_client_secret,
+                access_delgation_mode=access_delgation_mode
             )
             for row in metadata_rows
         ]
@@ -71,12 +111,15 @@ class DatabricksToSnowflakeHelpers:
                 snowflake_database=row["snowflake_database"],
                 snowflake_schema=row["snowflake_schema"],
                 snowflake_table=row["snowflake_table"],
+                snowflake_external_volume=row["snowflake_external_volume"],
                 auto_refresh=auto_refresh,
             )
             for row in metadata_rows
         ]
 
-    def create_sf_cat_int_ddls(self, sf_cat_int_dtos: List[SnowflakeCatIntlDTO]) -> List[str]:
+    def create_sf_cat_int_ddls(
+        self, sf_cat_int_dtos: List[SnowflakeCatIntlDTO]
+    ) -> List[str]:
         # Generate DDL statements for catalog integrations
         return [
             self.catalog_integration_logic.generate_ddl(
@@ -91,13 +134,26 @@ class DatabricksToSnowflakeHelpers:
             for item in sf_cat_int_dtos
         ]
 
-    def create_sf_cat_int(self, sf_account_id: str, sf_user: str, sf_private_key_file: str, sf_private_key_file_pwd: str, sf_cat_int_dtos: List[SnowflakeCatIntlDTO]) -> None:
+    def create_sf_cat_int(
+        self,
+        sf_account_id: str,
+        sf_user: str,
+        sf_private_key_file: str,
+        sf_private_key_file_pwd: str,
+        sf_cat_int_dtos: List[SnowflakeCatIntlDTO],
+    ) -> None:
         # Create catalog integrations in Snowflake
-        repository = self._initialize_snowflake_repository(sf_account_id, sf_user, sf_private_key_file, sf_private_key_file_pwd)
+        repository = self._initialize_snowflake_repository(
+            sf_account_id, sf_user, sf_private_key_file, sf_private_key_file_pwd
+        )
         for item in sf_cat_int_dtos:
-            self.catalog_integration_logic.create_catalog_integration(repository, **vars(item))
+            self.catalog_integration_logic.create_catalog_integration(
+                repository, **vars(item)
+            )
 
-    def create_sf_table_ddls(self, sf_table_dtos: List[SnowflakeIcebergTableDTO]) -> List[str]:
+    def create_sf_table_ddls(
+        self, sf_table_dtos: List[SnowflakeIcebergTableDTO]
+    ) -> List[str]:
         # Generate DDL statements for tables
         return [
             self.table_logic.generate_ddl(
@@ -107,13 +163,23 @@ class DatabricksToSnowflakeHelpers:
                 sf_catalog_integration_name=item.catalog_integration_name,
                 db_table_name=item.uc_table_name,
                 auto_refresh=item.auto_refresh,
+                sf_external_volume_name=item.snowflake_external_volume,
             )
             for item in sf_table_dtos
         ]
 
-    def create_sf_tables(self, sf_account_id: str, sf_user: str, sf_private_key_file: str, sf_private_key_file_pwd: str, sf_table_dtos: List[SnowflakeIcebergTableDTO]) -> None:
+    def create_sf_tables(
+        self,
+        sf_account_id: str,
+        sf_user: str,
+        sf_private_key_file: str,
+        sf_private_key_file_pwd: str,
+        sf_table_dtos: List[SnowflakeIcebergTableDTO],
+    ) -> None:
         # Create tables in Snowflake and update sync status
-        repository = self._initialize_snowflake_repository(sf_account_id, sf_user, sf_private_key_file, sf_private_key_file_pwd)
+        repository = self._initialize_snowflake_repository(
+            sf_account_id, sf_user, sf_private_key_file, sf_private_key_file_pwd
+        )
         sync_statuses: List[SyncStatusDTO] = []
 
         for item in sf_table_dtos:
@@ -126,34 +192,61 @@ class DatabricksToSnowflakeHelpers:
                     sf_catalog_integration_name=item.catalog_integration_name,
                     db_table_name=item.uc_table_name,
                     auto_refresh=item.auto_refresh,
+                    sf_external_volume_name=item.snowflake_external_volume,
                 )
-                sync_statuses.append(SyncStatusDTO(
-                    dbx_sf_uniform_metadata_id=item.dbx_sf_uniform_metadata_id,
-                    snowflake_account_id=sf_account_id,
-                    sync_status="success",
-                    sync_message=f"Table '{item.snowflake_table}' created successfully."
-                ))
+                sync_statuses.append(
+                    SyncStatusDTO(
+                        dbx_sf_uniform_metadata_id=item.dbx_sf_uniform_metadata_id,
+                        snowflake_account_id=sf_account_id,
+                        sync_status="success",
+                        sync_message=f"Table '{item.snowflake_table}' created successfully.",
+                    )
+                )
             except Exception as e:
-                sync_statuses.append(SyncStatusDTO(
-                    dbx_sf_uniform_metadata_id=item.dbx_sf_uniform_metadata_id,
-                    snowflake_account_id=sf_account_id,
-                    sync_status="failed",
-                    sync_message=str(e)
-                ))
+                sync_statuses.append(
+                    SyncStatusDTO(
+                        dbx_sf_uniform_metadata_id=item.dbx_sf_uniform_metadata_id,
+                        snowflake_account_id=sf_account_id,
+                        sync_status="failed",
+                        sync_message=str(e),
+                    )
+                )
 
         # Update metadata table with sync results
         self.metadata_mapping_logic.update_metadata_sync_details(sync_statuses)
 
-    def create_sf_databases(self, sf_account_id: str, sf_user: str, sf_private_key_file: str, sf_private_key_file_pwd: str, sf_table_dtos: List[SnowflakeIcebergTableDTO]):
+    def create_sf_databases(
+        self,
+        sf_account_id: str,
+        sf_user: str,
+        sf_private_key_file: str,
+        sf_private_key_file_pwd: str,
+        sf_table_dtos: List[SnowflakeIcebergTableDTO],
+    ):
         # Create Snowflake databases from DTOs
-        databases: list[str] = list({getattr(obj, "snowflake_database", None) for obj in sf_table_dtos})
-        repository = SnowflakeDatabaseRepository(sf_account_id, sf_user, sf_private_key_file, sf_private_key_file_pwd)
+        databases: list[str] = list(
+            {getattr(obj, "snowflake_database", None) for obj in sf_table_dtos}
+        )
+        repository = SnowflakeDatabaseRepository(
+            sf_account_id, sf_user, sf_private_key_file, sf_private_key_file_pwd
+        )
         for database in databases:
             self.database_logic.create_database(repository, database)
 
-    def create_sf_schemas(self, sf_account_id: str, sf_user: str, sf_private_key_file: str, sf_private_key_file_pwd: str, sf_table_dtos: List[SnowflakeIcebergTableDTO]):
+    def create_sf_schemas(
+        self,
+        sf_account_id: str,
+        sf_user: str,
+        sf_private_key_file: str,
+        sf_private_key_file_pwd: str,
+        sf_table_dtos: List[SnowflakeIcebergTableDTO],
+    ):
         # Create Snowflake schemas from DTOs
-        schemas: list[str] = list({(obj.snowflake_database, obj.snowflake_schema) for obj in sf_table_dtos})
-        repository = SnowflakeSchemaRepository(sf_account_id, sf_user, sf_private_key_file, sf_private_key_file_pwd)
+        schemas: list[str] = list(
+            {(obj.snowflake_database, obj.snowflake_schema) for obj in sf_table_dtos}
+        )
+        repository = SnowflakeSchemaRepository(
+            sf_account_id, sf_user, sf_private_key_file, sf_private_key_file_pwd
+        )
         for database, schema in schemas:
             self.schema_logic.create_schema(repository, database, schema)

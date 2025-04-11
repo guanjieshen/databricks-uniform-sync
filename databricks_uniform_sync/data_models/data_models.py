@@ -84,6 +84,7 @@ class SnowflakeCatIntlDTO(BaseModel):
     refresh_interval_seconds: int                     # Identifier for the tenant.
     oauth_client_id: str                # Container name used in the external volume.
     oauth_client_secret: str                     # Identifier for the tenant.
+    access_delgation_mode: str                   # Should use vended credentials
 
 class SnowflakeIcebergTableDTO(BaseModel):
     """
@@ -95,6 +96,7 @@ class SnowflakeIcebergTableDTO(BaseModel):
     snowflake_database: str                     # Identifier for the tenant.
     snowflake_schema: str                # Container name used in the external volume.
     snowflake_table: str                     # Identifier for the tenant.
+    snowflake_external_volume: str           # External Volume (if not using vended credentials)
     auto_refresh: bool                     # Should the table automatically refresh
 
 class SyncStatusDTO(BaseModel):

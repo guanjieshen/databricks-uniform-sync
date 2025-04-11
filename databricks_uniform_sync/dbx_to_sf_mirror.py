@@ -176,6 +176,7 @@ class DatabricksToSnowflakeMirror:
         oauth_client_id: str,
         oauth_client_secret: str,
         refresh_interval_seconds: int = 3600,
+        access_delgation_mode: str = "VENDED_CREDENTIALS",
     ) -> None:
         """
         Create catalog integrations in Snowflake.
@@ -197,6 +198,7 @@ class DatabricksToSnowflakeMirror:
                 refresh_interval_seconds=refresh_interval_seconds,
                 oauth_client_id=oauth_client_id,
                 oauth_client_secret=oauth_client_secret,
+                access_delgation_mode=access_delgation_mode,
             )
         )
 
