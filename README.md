@@ -40,7 +40,7 @@ This utility automates the following tasks:
 
 The metadata tables will contain information on what assets in Snowflake have been created, and provide a status on the syncronization state.
 
-
+![design](img/design.png)
 
 ---
 
